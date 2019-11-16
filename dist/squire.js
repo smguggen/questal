@@ -363,11 +363,6 @@ squire.Response = class {
     
 }
 
-const squire = {}
-squire.Event = require('../src/event.js');
-squire.Header = require('../src/header.js');
-squire.Response = require('../src/header.js');
-squire.Util = require('../src/util.js');
 squire.Request = class {
     constructor() {
         this.sender = new XMLHttpRequest(); 
@@ -479,8 +474,6 @@ squire.Request = class {
     }
 }
 
-
-
 squire.Get = class extends squire.Request {
     constructor() {
         super();
@@ -513,10 +506,6 @@ squire.Get = class extends squire.Request {
     }
 }
 
-
-
-const squire = require('../lib/get.js');
-
 squire.Post = class extends squire.Request {
     constructor() {
         super();
@@ -543,10 +532,6 @@ squire.Post = class extends squire.Request {
     
 }
 
-
-
-const squire = require('../lib/post.js');
-
 squire.Html = class extends squire.Get {
     constructor() {
         super();
@@ -566,6 +551,4 @@ squire.Html = class extends squire.Get {
         return req.init(url, data, options);
     }
 }
-
-
 
