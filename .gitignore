@@ -1,0 +1,11 @@
+.vscode
+node_modules
+bower_components
+*-lock.*
+.history
+.git
+webpack.config.js
+.babelrc
+server/
+config/
+package.json
