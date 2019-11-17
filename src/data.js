@@ -1,8 +1,7 @@
+const _squireUtil = require('../src/util.js');
+
 module.exports = class {
-    constructor() {
-        
-    }
-    
+
     set data(data) {
         this.setData(data);
     }
@@ -15,7 +14,7 @@ module.exports = class {
     get params() {
         return this._params || '';
     }
-    
+
     setData(info) {
         if (!this._data) {
             this._data = {};
@@ -25,7 +24,7 @@ module.exports = class {
         }
         let data = {},
         params = '',
-        type = squire.Util.getType(info);
+        type = _squireUtil.getType(info);
         if (type == 'object') {
             data = info;
             params = this.parseParamsToString(info);
@@ -33,11 +32,11 @@ module.exports = class {
             data = this.parseParamsToObject(info);
             params = info;
         }
-        
+
         this._data = Object.assign({}, this._data, data);
         this._params += params;
     }
-    
+
     parseParamsToObject(str) {
         str = str || '';
         if (str.substring(0,1) == '?') {
@@ -49,7 +48,7 @@ module.exports = class {
             return acc;
         }, {});
     }
-    
+
     parseParamsToString(obj, withMark) {
         obj = obj || {};
         let data = withMark ? '?' : '';

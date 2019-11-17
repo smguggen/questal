@@ -1,0 +1,26 @@
+{
+  "name": "squire",
+  "version": "1.0.0",
+  "description": "A lightweight wrapper for making HTTP requests using ajax",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node config/index.js development",
+    "build": "node config/index.js production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smguggen/squire.git.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smguggen/squire.git/issues"
+  },
+  "homepage": "https://github.com/smguggen/squire.git#readme",
+  "devDependencies": {
+    "express": "^4.17.1",
+    "node": "^12.13.0",
+    "terser": "^4.4.0"
+  }
+}
