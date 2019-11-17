@@ -4,30 +4,34 @@ module.exports = class {
         this.defaultType = 'text';
         this.types = ['arraybuffer', 'blob', 'document', 'text', 'json'];
     }
-    
+
     get data() {
         let oldType = this.type;
         this.type = 'json';
-        let res = this.sender.response;    
+        let res = this.sender.response;
         this.type = oldType;
         return res;
     }
-    
+
     get url() {
         return this.sender.responseURL;
     }
-    
+
     get result() {
-        let res = this.sender.responseText;
+        return this.sender.responseText;
+    }
+
+    get json() {
+        let res = this.result
         try {
             return JSON.parse(res);
         } catch(e) {
             return res;
         }
     }
-    
+
     get xml() {
-        return this.sender.responseXML;    
+        return this.sender.responseXML;
     }
     get html() {
         if (this.type == 'document') {
@@ -36,7 +40,7 @@ module.exports = class {
             return '';
         }
     }
-    
+
     set type(type) {
         type = type == 'buffer' ? 'arraybuffer' : type;
         if (this.types.includes(type)) {
@@ -47,19 +51,19 @@ module.exports = class {
     get type() {
         return this._type || this.defaultType;
     }
-    
+
     get status() {
         return this.sender.statusText;
     }
-    
+
     get code() {
         return this.sender.status;
     }
-    
+
     isSuccess() {
         return this.code >= 200 && this.code < 300;
     }
-    
-    
-    
+
+
+
 }

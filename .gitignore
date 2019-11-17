@@ -9,4 +9,4 @@ webpack.config.js
 server/
 config/
 package.json
-example/
+example

@@ -53,32 +53,38 @@ squire.Util = class {
 squire.Event = class {
     constructor(events) {
         events = events || [];
-        this.eventNames = ['init', 'send', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'].concat(events);
+        this.eventNames = events;
         this.events = this.eventNames.reduce((acc, event) => {
             acc[event] = [];
-            return acc;            
+            return acc;
         }, {});
     }
-    
+
     on(event, callback) {
         this.event = event;
         this.events[event].push(callback);
         return this;
     }
-    
-    fire(event) {
+
+    fire(event, ...params) {
         let $this = this;
+        params = params && params.length ? params : null;
+
         if (!this.events[event] || !this.events[event].length) {
             return;
         }
         let ev = this.events[event];
         for (let i = 0; i < ev.length; i++) {
             let fn = ev[i];
-            fn.call($this);
+            if (params) {
+                fn.apply($this, params);
+            } else {
+                fn.call($this);
+            }
         }
         return this;
     }
-    
+
     set event(event) {
         if (!this.eventNames.includes(event)) {
             this.eventNames.push(event);
@@ -87,44 +93,13 @@ squire.Event = class {
             this.events[event] = [];
         }
     }
-    
-    get complete() {
-        return this._getTemplate('complete')
-    }
-    
-    get change() {
-        return this._getTemplate('change')
-    }
-    
-    get progress() {
-       return  this._getTemplate('progress');
-    }
-    
-    get error() {
-        return this._getTemplate('error');
-    }
-    
-    get abort() {
-        return this._getTemplate('abort');
-    }
-    
-    get success() {
-        return this._getTemplate('success');
-    }
-    
-    get init() {
-        return this._getTemplate('init');
-    }
-    
-    get timeout() {
-        return this._getTemplate('timeout');
-    }
-    
-    _getTemplate(event) {
+
+    schedule(event, ...params) {
         let $this = this;
         if (this.eventNames.includes(event) && this.events[event] && this.events[event].length) {
-            return () => {
-                $this.fire(event);
+            return (...args) => {
+                args = args.concat(params);
+                $this.fire(event, ...args);
             }
         } else {
             return false;
@@ -303,30 +278,34 @@ squire.Response = class {
         this.defaultType = 'text';
         this.types = ['arraybuffer', 'blob', 'document', 'text', 'json'];
     }
-    
+
     get data() {
         let oldType = this.type;
         this.type = 'json';
-        let res = this.sender.response;    
+        let res = this.sender.response;
         this.type = oldType;
         return res;
     }
-    
+
     get url() {
         return this.sender.responseURL;
     }
-    
+
     get result() {
-        let res = this.sender.responseText;
+        return this.sender.responseText;
+    }
+
+    get json() {
+        let res = this.result
         try {
             return JSON.parse(res);
         } catch(e) {
             return res;
         }
     }
-    
+
     get xml() {
-        return this.sender.responseXML;    
+        return this.sender.responseXML;
     }
     get html() {
         if (this.type == 'document') {
@@ -335,7 +314,7 @@ squire.Response = class {
             return '';
         }
     }
-    
+
     set type(type) {
         type = type == 'buffer' ? 'arraybuffer' : type;
         if (this.types.includes(type)) {
@@ -346,33 +325,33 @@ squire.Response = class {
     get type() {
         return this._type || this.defaultType;
     }
-    
+
     get status() {
         return this.sender.statusText;
     }
-    
+
     get code() {
         return this.sender.status;
     }
-    
+
     isSuccess() {
         return this.code >= 200 && this.code < 300;
     }
-    
-    
-    
+
+
+
 }
 
 squire.Request = class {
     constructor() {
-        this.sender = new XMLHttpRequest(); 
-        this.events = new squire.Event();
+        this.sender = new XMLHttpRequest();
+        this.events = new squire.Event(['init', 'send', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout']);
         this.header = new squire.Header(this.sender);
         this.response = new squire.Response(this.sender);
-        this.data = new squire.Data();
+        this._data = new squire.Data();
         this.onComplete();
     }
-    
+
     set url(url) {
         if (!squire.Util.typecheck(url)) {
             return;
@@ -383,30 +362,30 @@ squire.Request = class {
             this.data = urls[1];
         }
     }
-    
+
     get url() {
         return this._url;
     }
-    
+
     set data(data) {
-        this.data.data = data;
-    }    
+        this._data.data = data;
+    }
     get data() {
-        return this.data.data;
+        return this._data.data;
     }
     get params() {
-        return this.data.params;
+        return this._data.params;
     }
-    
+
     abort() {
         this.sender.abort();
         return this;
     }
-    
+
     get(key) {
         return this.sender[key];
     }
-    
+
     set(key, value) {
         let $this = this;
         switch(key) {
@@ -416,30 +395,38 @@ squire.Request = class {
         }
         return this;
     }
-    
+
     on(event, callback) {
         if (this.events.eventNames.includes(event)) {
             this.events.on(event, callback);
         }
     }
-    
-    init(method, url, options) {
+
+    init(method, url, options, settings) {
         options = options || {};
+        if (typeof options === "function") {
+            options = {
+                success: options
+            }
+            if (typeof settings === "function") {
+                options.error = settings;
+            }
+        }
         let keys = Object.keys(options);
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
             if (this.events.eventNames.includes(key)) {
-                this.on(key, option[key]);
+                this.on(key, options[key]);
             }
         }
         this.events.fire('init');
         this.set('timeout', options.timeout || 60000);
-        let com = this.events.complete;
-        let prog = this.events.progress;
-        let ch = this.events.change;
-        let err = this.events.error;
-        let ab = this.events.abort;
-        let time = this.events.timeout;
+        let com = this.events.schedule('complete');
+        let prog = this.events.schedule('progress');
+        let ch = this.events.schedule('change');
+        let err = this.events.schedule('error');
+        let ab = this.events.schedule('abort');
+        let time = this.events.schedule('timeout');
         if (com) {
             this.set('onload',com);
         }
@@ -459,17 +446,17 @@ squire.Request = class {
             this.set('ontimeout', time);
         }
         this.sender.open(method, url);
-        this.events.fire('send');
+        this.events.fire('send', this.sender);
         this.sender.send();
         return this;
     }
-    
+
     onComplete() {
         let $this = this;
-        this.on('complete', () => {
+        this.on('complete', (event) => {
            if ($this.response.isSuccess()) {
-               $this.events.fire('success');
-           } 
+               $this.events.fire('success', [$this.response, event]);
+           }
         });
     }
 }
@@ -500,9 +487,9 @@ squire.Get = class extends squire.Request {
         return super.init(this.method, query, options);
     }
 
-    static get(url, data, options) {
+    static get(url, data, options, settings) {
         let req = new squire.Get();
-        return req.init(url, data, options);
+        return req.init(url, data, options, settings);
     }
 }
 
@@ -518,7 +505,7 @@ squire.Post = class extends squire.Request {
         
     }
     
-    init(url, data, options) {
+    init(url, data, options, settings) {
         let $this = this;
         this.url = url;
         this.data = data || options || {};
@@ -527,7 +514,7 @@ squire.Post = class extends squire.Request {
            let type = options.accept || ['application/json'];
            $this.accept(type);
         });
-        return super.init(this.method, this.url, options);
+        return super.init(this.method, this.url, options, settings);
     }
     
 }
@@ -537,18 +524,18 @@ squire.Html = class extends squire.Get {
         super();
     }
 
-        init(url, options) {
-            let $this = this;
-            options.accept = 'html';
+    init(url, options) {
+        let $this = this;
+        options.accept = 'html';
         this.on('send', () => {
            $this.response.type = 'document';
         });
         return super.init(this.method, url, options);
     }
 
-    static html(url, data, options) {
+    static html(url, data, options, settings) {
         let req = new squire.Html();
-        return req.init(url, data, options);
+        return req.init(url, data, options, settings);
     }
 }
 
