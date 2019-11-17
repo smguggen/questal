@@ -1,4 +1,4 @@
-const _squireUtil = require('../src/util.js');
+const SquireUtil = require('../src/util.js');
 
 module.exports = class {
 
@@ -24,7 +24,7 @@ module.exports = class {
         }
         let data = {},
         params = '',
-        type = _squireUtil.getType(info);
+        type = SquireUtil.getType(info);
         if (type == 'object') {
             data = info;
             params = this.parseParamsToString(info);

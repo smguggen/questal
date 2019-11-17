@@ -47,10 +47,10 @@ stream.on('finish', () => {
 });
 
 writeFiles(['util', 'events', 'data', 'header', 'response'], 'src', stream, (key) => {
-    return `_squire${key.substring(0,1).toUpperCase() + key.substring(1)}`;
+    return `Squire${key.substring(0,1).toUpperCase() + key.substring(1)}`;
 });
 writeFiles(['request', 'get', 'post'], 'lib', stream, (key) => {
-    return `_squire${key.substring(0,1).toUpperCase() + key.substring(1)}`;
+    return `Squire${key.substring(0,1).toUpperCase() + key.substring(1)}`;
 });
 writeFiles(['index'], null, stream, (key) => {
     return 'Squire';
