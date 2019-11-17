@@ -1,13 +1,19 @@
 module.exports = class {
-    constructor() {
-
-    }
 
     static getType(input) {
         if (input instanceof RegExp) {
             return 'regex';
         } else if (typeof input === 'object') {
-            return this._type(input);
+            if (typeof obj !== 'object') {
+                return false;
+            }
+            if (obj == null) {
+                return 'null';
+            } else if (Array.isArray(obj)) {
+                return 'array';
+            } else {
+                return 'object';
+            }
         } else {
             return typeof input;
         }
@@ -32,31 +38,5 @@ module.exports = class {
             break;
         }
         return test ? true : false;
-    }
-
-    static getObjectType(obj) {
-        if (typeof obj !== 'object') {
-            return false;
-        }
-        if (obj == null) {
-            return 'null';
-        } else if (Array.isArray(obj)) {
-            return 'array';
-        } else {
-            return 'object';
-        }
-    }
-
-    _type(obj) {
-         if (typeof obj !== 'object') {
-            return false;
-        }
-        if (obj == null) {
-            return 'null';
-        } else if (Array.isArray(obj)) {
-            return 'array';
-        } else {
-            return 'object';
-        }
     }
 }
