@@ -1,4 +1,4 @@
-const _squireUtil = class {
+const SquireUtil = class {
 
     static getType(input) {
         if (input instanceof RegExp) {
@@ -41,7 +41,7 @@ const _squireUtil = class {
     }
 }
 
-const _squireEvents = class {
+const SquireEvents = class {
     constructor(events) {
         events = events || [];
         this.eventNames = events;
@@ -98,7 +98,7 @@ const _squireEvents = class {
     }
 }
 
-const _squireData = class {
+const SquireData = class {
 
     set data(data) {
         this.setData(data);
@@ -122,7 +122,7 @@ const _squireData = class {
         }
         let data = {},
         params = '',
-        type = _squireUtil.getType(info);
+        type = SquireUtil.getType(info);
         if (type == 'object') {
             data = info;
             params = this.parseParamsToString(info);
@@ -158,7 +158,7 @@ const _squireData = class {
     }
 }
 
-const _squireHeader = class {
+const SquireHeader = class {
     constructor(sender) {
         this.sender = sender;
         this.headers = {};
@@ -260,7 +260,7 @@ const _squireHeader = class {
     }
 }
 
-const _squireResponse = class {
+const SquireResponse = class {
     constructor(sender) {
         this.sender = sender;
         this.defaultType = 'text';
@@ -330,18 +330,18 @@ const _squireResponse = class {
 
 }
 
-const _squireRequest = class {
+const SquireRequest = class {
     constructor() {
         this.sender = new XMLHttpRequest();
-        this.events = new _squireEvents(['init', 'send', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout']);
-        this.header = new _squireHeader(this.sender);
-        this.response = new _squireResponse(this.sender);
-        this._data = new _squireData();
+        this.events = new SquireEvents(['init', 'send', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout']);
+        this.header = new SquireHeader(this.sender);
+        this.response = new SquireResponse(this.sender);
+        this._data = new SquireData();
         this.onComplete();
     }
 
     set url(url) {
-        if (!_squireUtil.typecheck(url)) {
+        if (!SquireUtil.typecheck(url)) {
             return;
         }
         let urls = url.split('?');
@@ -449,7 +449,7 @@ const _squireRequest = class {
     }
 }
 
-const _squireGet = class extends _squireRequest {
+const SquireGet = class extends SquireRequest {
     constructor() {
         super();
     }
@@ -476,18 +476,18 @@ const _squireGet = class extends _squireRequest {
     }
 }
 
-const _squirePost = class extends _squireRequest {
+const SquirePost = class extends SquireRequest {
     constructor() {
         super();
     }
-    
+
     get method() {
         return 'post';
     }
     set method(m) {
-        
+
     }
-    
+
     init(url, data, options, settings) {
         let $this = this;
         this.url = url;
@@ -499,29 +499,29 @@ const _squirePost = class extends _squireRequest {
         });
         return super.init(this.method, this.url, options, settings);
     }
-    
+
 }
 
-const Squire = class extends _squireRequest {
+const Squire = class extends SquireRequest {
     constructor() {
         super();
     }
 
     get Get() {
-        return new _squireGet();
+        return new SquireGet();
     }
 
     get Post() {
-        return new _squirePost();
+        return new SquirePost();
     }
 
     static get(url, data, options, settings) {
-        let req = new _squireGet();
+        let req = new SquireGet();
         return req.init(url, data, options, settings);
     }
 
     static post(url, data, options, settings) {
-        let req = new _squirePost();
+        let req = new SquirePost();
         return req.init(url, data, options, settings);
     }
 
