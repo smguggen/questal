@@ -1,5 +1,5 @@
 {
-  "name": "squire",
+  "name": "questal",
   "version": "1.0.0",
   "description": "A lightweight wrapper for making HTTP requests",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smguggen/squire.git.git"
+    "url": "git+https://github.com/smguggen/questal.git.git"
   },
   "author": "Steven Guggenheimer",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/smguggen/squire.git/issues"
+    "url": "https://github.com/smguggen/questal.git/issues"
   },
-  "homepage": "https://github.com/smguggen/squire.git#readme",
+  "homepage": "https://github.com/smguggen/questal.git#readme",
   "devDependencies": {
     "node": "^12.13.0",
     "terser": "^4.4.0"

@@ -5,8 +5,8 @@ let mode = process.argv[2] || 'development';
 let root = path.resolve(process.cwd(), '../');
 config(root, (args) => {
     let dest = mode == 'production' && args.min ? args.min : args.file;
-    dest += 'export default Squire';
-    fs.writeFile(path.resolve(__dirname, '../squire.js'), dest, 'utf-8', (err) => {
+    dest += 'export default Questal';
+    fs.writeFile(path.resolve(__dirname, '../questal.js'), dest, 'utf-8', (err) => {
         if (err) {
             console.log(err);
         } else if (args.err) {

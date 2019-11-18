@@ -1,4 +1,4 @@
-const SquireUtil = class {
+const QuestalUtil = class {
 
     static getType(input) {
         if (input instanceof RegExp) {
@@ -41,7 +41,7 @@ const SquireUtil = class {
     }
 }
 
-const SquireEvents = class {
+const QuestalEvents = class {
     constructor(events) {
         events = events || [];
         this.eventNames = events;
@@ -98,7 +98,7 @@ const SquireEvents = class {
     }
 }
 
-const SquireData = class {
+const QuestalData = class {
 
     set data(data) {
         this.setData(data);
@@ -122,7 +122,7 @@ const SquireData = class {
         }
         let data = {},
         params = '',
-        type = SquireUtil.getType(info);
+        type = QuestalUtil.getType(info);
         if (type == 'object') {
             data = info;
             params = this.parseParamsToString(info);
@@ -158,7 +158,7 @@ const SquireData = class {
     }
 }
 
-const SquireHeader = class {
+const QuestalHeader = class {
     constructor(sender) {
         this.sender = sender;
         this.headers = {};
@@ -260,7 +260,7 @@ const SquireHeader = class {
     }
 }
 
-const SquireResponse = class {
+const QuestalResponse = class {
     constructor(sender) {
         this.sender = sender;
         this.defaultType = 'text';
@@ -330,18 +330,18 @@ const SquireResponse = class {
 
 }
 
-const SquireRequest = class {
+const QuestalRequest = class {
     constructor() {
         this.sender = new XMLHttpRequest();
-        this.events = new SquireEvents(['init', 'send', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout']);
-        this.header = new SquireHeader(this.sender);
-        this.response = new SquireResponse(this.sender);
-        this._data = new SquireData();
+        this.events = new QuestalEvents(['init', 'send', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout']);
+        this.header = new QuestalHeader(this.sender);
+        this.response = new QuestalResponse(this.sender);
+        this._data = new QuestalData();
         this.onComplete();
     }
 
     set url(url) {
-        if (!SquireUtil.typecheck(url)) {
+        if (!QuestalUtil.typecheck(url)) {
             return;
         }
         let urls = url.split('?');
@@ -449,7 +449,7 @@ const SquireRequest = class {
     }
 }
 
-const SquireGet = class extends SquireRequest {
+const QuestalGet = class extends QuestalRequest {
     constructor() {
         super();
     }
@@ -476,7 +476,7 @@ const SquireGet = class extends SquireRequest {
     }
 }
 
-const SquirePost = class extends SquireRequest {
+const QuestalPost = class extends QuestalRequest {
     constructor() {
         super();
     }
@@ -502,26 +502,26 @@ const SquirePost = class extends SquireRequest {
 
 }
 
-const Squire = class extends SquireRequest {
+const Questal = class extends QuestalRequest {
     constructor() {
         super();
     }
 
     get Get() {
-        return new SquireGet();
+        return new QuestalGet();
     }
 
     get Post() {
-        return new SquirePost();
+        return new QuestalPost();
     }
 
     static get(url, data, options, settings) {
-        let req = new SquireGet();
+        let req = new QuestalGet();
         return req.init(url, data, options, settings);
     }
 
     static post(url, data, options, settings) {
-        let req = new SquirePost();
+        let req = new QuestalPost();
         return req.init(url, data, options, settings);
     }
 

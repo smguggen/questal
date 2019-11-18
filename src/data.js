@@ -1,4 +1,4 @@
-const SquireUtil = require('../src/util.js');
+const QuestalUtil = require('../src/util.js');
 
 module.exports = class {
 
@@ -24,7 +24,7 @@ module.exports = class {
         }
         let data = {},
         params = '',
-        type = SquireUtil.getType(info);
+        type = QuestalUtil.getType(info);
         if (type == 'object') {
             data = info;
             params = this.parseParamsToString(info);

@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const mini = require('terser');
-const squireConfig = (root, fn) => {
-    let dist = path.resolve(root, 'dist/squire.js');
+const questalConfig = (root, fn) => {
+    let dist = path.resolve(root, 'dist/questal.js');
     if (fs.existsSync(dist)) {
         fs.unlinkSync(dist);
     }
@@ -47,17 +47,17 @@ const squireConfig = (root, fn) => {
     });
 
     writeFiles(['util', 'events', 'data', 'header', 'response'], 'src', stream, (key) => {
-        return `Squire${key.substring(0,1).toUpperCase() + key.substring(1)}`;
+        return `Questal${key.substring(0,1).toUpperCase() + key.substring(1)}`;
     });
     writeFiles(['request', 'get', 'post'], 'lib', stream, (key) => {
-        return `Squire${key.substring(0,1).toUpperCase() + key.substring(1)}`;
+        return `Questal${key.substring(0,1).toUpperCase() + key.substring(1)}`;
     });
     writeFiles(['index'], null, stream, (key) => {
-        return 'Squire';
+        return 'Questal';
     });
 
     stream.close();
 }
 
-module.exports = squireConfig;
+module.exports = questalConfig;
 

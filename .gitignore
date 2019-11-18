@@ -4,3 +4,4 @@ bower_components
 *-lock.*
 .history
 .DS_Store
+example/questal.js
