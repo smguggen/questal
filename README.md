@@ -1,2 +1,2 @@
 # squire
-A lightweight wrapper for making HTTP requests using ajax
+A lightweight wrapper for making HTTP requests.

@@ -1,22 +1,25 @@
 {
-  "name": "squire",
+  "name": "squire-example",
   "version": "1.0.0",
   "description": "A lightweight wrapper for making HTTP requests",
   "main": "index.js",
   "scripts": {
-    "build": "node config/build.js"
+    "dev": "node config/build.js development",
+    "build": "node config/build.js production",
+    "start": "node config/server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/smguggen/squire.git.git"
   },
-  "author": "Steven Guggenheimer",
+  "author": "",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/smguggen/squire.git/issues"
   },
   "homepage": "https://github.com/smguggen/squire.git#readme",
   "devDependencies": {
+    "express": "^4.17.1",
     "node": "^12.13.0",
     "terser": "^4.4.0"
   }
