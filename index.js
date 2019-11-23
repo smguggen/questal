@@ -7,11 +7,11 @@ module.exports = class extends QuestalRequest {
         super();
     }
 
-    get Get() {
+    static Get() {
         return new QuestalGet();
     }
 
-    get Post() {
+    static Post() {
         return new QuestalPost();
     }
 

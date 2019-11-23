@@ -43,13 +43,12 @@ module.exports = class {
 
     set type(type) {
         type = type == 'buffer' ? 'arraybuffer' : type;
-        if (this.types.includes(type)) {
-            this._type = type;
-            this.sender.responseType = type;
+        if (this.types.includes(type) && this.sender.readyState < 3) {
+                this.sender.responseType = type;
         }
     }
     get type() {
-        return this._type || this.defaultType;
+        return this.sender.responseType;
     }
 
     get status() {

@@ -42,6 +42,16 @@ module.exports = class {
         }
     }
 
+    add(event) {
+        if (!Array.isArray(event)) {
+            event = [event];
+        }
+        let $this = this;
+        event.forEach((ev) => {
+            $this.event = ev;
+        });
+    }
+
     schedule(event, ...params) {
         let $this = this;
         if (this.eventNames.includes(event) && this.events[event] && this.events[event].length) {

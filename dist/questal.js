@@ -305,13 +305,12 @@ const QuestalResponse = class {
 
     set type(type) {
         type = type == 'buffer' ? 'arraybuffer' : type;
-        if (this.types.includes(type)) {
-            this._type = type;
-            this.sender.responseType = type;
+        if (this.types.includes(type) && this.sender.readyState < 3) {
+                this.sender.responseType = type;
         }
     }
     get type() {
-        return this._type || this.defaultType;
+        return this.sender.responseType;
     }
 
     get status() {
@@ -353,6 +352,12 @@ const QuestalRequest = class {
 
     get url() {
         return this._url;
+    }
+
+    get state() {
+        let st = this.sender.readyState;
+        let arr = ['unsent', 'opened', 'headers_received', 'loading', 'done'];
+        return arr[st];
     }
 
     set data(data) {
@@ -443,9 +448,43 @@ const QuestalRequest = class {
         let $this = this;
         this.on('complete', (event) => {
            if ($this.response.isSuccess()) {
-               $this.events.fire('success', [$this.response, event]);
+               $this.events.fire('success', $this.response);
            }
         });
+    }
+
+    accept(type) {
+        if (!type || /\*\s?\/\s?\*/.test(type)) {
+            type = '*/*';
+        }
+        if (!Array.isArray(type)) {
+            type = [type];
+        }
+        type = type.map((typ) => {
+            if (['jpeg', 'jpg', 'png', 'gif'].includes(typ)) {
+                return 'image/' + typ;
+            } else if (['mp4', 'mpeg', 'ogg', '3gpp', 'quicktime'].includes(typ)) {
+                return 'video/' + typ;
+            }
+            switch(typ) {
+                case 'html': return 'text/html';
+                break;
+                case 'json': return 'application/json';
+                break;
+                case 'xml': return 'application/xml';
+                break;
+                default: return typ;
+                break;
+            }
+        }).join(',');
+        if (this.state == 'opened') {
+            this.sender.setRequestHeader('Accept', type);
+        } else if (this.state == 'unsent') {
+            let $this = this;
+            this.on('send', () => {
+                $this.sender.setRequestHeader('Accept', type);
+            });
+        }
     }
 }
 
@@ -487,13 +526,15 @@ const QuestalPost = class extends QuestalRequest {
     set method(m) {
 
     }
+    
+    
 
     init(url, data, options, settings) {
         let $this = this;
         this.url = url;
         this.data = data || options || {};
         options = options || {};
-        this.send(() => {
+        this.on('send', () => {
            let type = options.accept || ['application/json'];
            $this.accept(type);
         });
