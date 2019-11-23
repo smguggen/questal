@@ -16,8 +16,8 @@ Using node
 const questal = require('questal');
 ```
 
-Using script
-```javascript
+In file
+```html
 <script type="text/javascript" src="/node_modules/dist/questal.min.js"></script>
 ```
 Basic Usage:
