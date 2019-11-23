@@ -28,8 +28,9 @@ Questal.get('/path/to/dest', (data) => {console.log(data)});
 Questal.post('/path/to/dest', (data) => {console.log(data.json)});
 ```
 The data parameter passed to the callback is a Questal Response object containing the results of the request.
+
+#### data:
 ```javascript
-//data
 QuestalResponse {
     defaultType: "text",
     sender: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 60000, withCredentials: false, upload: XMLHttpRequestUpload, …},
@@ -46,8 +47,8 @@ QuestalResponse {
 }
 ```
 
+#### data.json:
 ```json
-//data.json
 "names": [
     {
         "id": 1,
