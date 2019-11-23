@@ -30,15 +30,41 @@ Questal.post('/path/to/dest', (data) => {console.log(data.json)});
 The data parameter passed to the callback is a Questal Response object containing the results of the request.
 ```javascript
 //data
-QuestalResponse Object
+QuestalResponse {
+    defaultType: "text",
+    sender: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 60000, withCredentials: false, upload: XMLHttpRequestUpload, …},
+    types: (5) ["arraybuffer", "blob", "document", "text", "json"],
+    code: {…},
+    data: {…},
+    html: "…",
+    json: {…},
+    result: {…},
+    status: "…",
+    type: "…",
+    url: "…",
+    xml: "…",
+}
+```
 
+```json
 //data.json
-Array(1):
-0:
-names: Array(3)
-0: {id: 1, first: "Bill", last: "Jones"}
-1: {id: 2, first: "Jane", last: "Smith"}
-2: {id: 3, first: "Bob", last: "Davis"}
+"names": [
+    {
+        "id": 1,
+        "first": "Bill",
+        "last": "Jones"
+    },
+    {
+        "id":2,
+        "first":"Jane",
+        "last":"Smith"
+    },
+    {
+        "id":3,
+        "first":"Bob",
+        "last":"Davis"
+    }
+]
 ```
 
 To set more customized options grab a new instance of the proper object
