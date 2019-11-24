@@ -3,7 +3,7 @@ module.exports = class {
         this.sender = sender;
         this.headers = {};
     }
-    
+
     set accept(type) {
         if (!this._accept) {
             this._accept = [];
@@ -22,7 +22,7 @@ module.exports = class {
             break;
         }
         if (res == '*/*') {
-          this._accept = ['*/*'];  
+          this._accept = ['*/*'];
         } else if (!this._accept.includes(res)) {
             this._accept.push(res);
         }
@@ -37,16 +37,16 @@ module.exports = class {
             return this._accept.join(',');
         }
     }
-    
+
     set encoding(type) {
         let $this = this;
         switch(type) {
-            case 'multipart': $this.encoding = 'multipart/form-data';
+            case 'multipart': $this._encoding = 'multipart/form-data';
             case 'form':
             break;
-            case 'plain': $this.encoding = 'text/plain';
+            case 'plain': $this._encoding = 'text/plain';
             break;
-            default:$this.encoding = 'application/x-www-form-urlencoded';
+            default:$this._encoding = 'application/x-www-form-urlencoded';
             break;
         }
     }
@@ -57,36 +57,38 @@ module.exports = class {
             return this._encoding;
         }
     }
-    
+
     set(key, value) {
          if (key.toLowerCase() == 'accept') {
                 this.accept = value;
-            } else if (key == 'encoding' || key == 'Content-Type') {
+            } else if (key == 'encoding' || key == 'Content-Type' || key == 'content') {
                 this.encoding = value;
             } else if (!this.isForbidden(key)) {
                 this.headers[key] = value;
             }
         return this;
     }
-    
+
     init() {
-        let keys = Object.keys(this.headers);
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
-            let value = this.headers[key];
-            if (!this.isForbidden(key)) {
-                this.sender.setRequestHeader(key, value);
-            }
-            if (this.accept) {
-                this.sender.setRequestHeader('Accept', this.accept);
-            }
-            if (this.encoding) {
-                this.sender.setRequestHeader('Content-Type', this.encoding);
+        if (this.sendable) {
+            let keys = Object.keys(this.headers);
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
+                let value = this.headers[key];
+                if (!this.isForbidden(key)) {
+                    this.sender.setRequestHeader(key, value);
+                }
+                if (this.accept) {
+                    this.sender.setRequestHeader('Accept', this.accept);
+                }
+                if (this.encoding) {
+                    this.sender.setRequestHeader('Content-Type', this.encoding);
+                }
             }
         }
         return this;
     }
-    
+
     isForbidden(key) {
        key = key.trim();
        if (key.startsWith('Sec-') || key.startsWith('Proxy-')) {
@@ -97,5 +99,14 @@ module.exports = class {
            return true;
        }
        return false;
+    }
+
+    sendable() {
+        if (this.sender.readyState >= 2) {
+            console.log('Headers already sent');
+            return false;
+        } else {
+            return true;
+        }
     }
 }

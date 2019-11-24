@@ -39,4 +39,15 @@ module.exports = class {
         }
         return test ? true : false;
     }
+
+    static toCamelCase(str) {
+        str = str || '';
+        return str.split('-').map((prop, ind) => {
+            if (ind > 0) {
+                return prop.substring(0,1).toUpperCase() + prop.substring(1);
+            } else {
+                return prop;
+            }
+        }).join('').trim();
+    }
 }

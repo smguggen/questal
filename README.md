@@ -76,10 +76,19 @@ let get = Questal.Get();
 // returns new Questal Post Object
 let post = Questal.Post();
 
-//after request is opened but before request is sent, set 'Accept' header to 'application/json'
-post.on('send', () => {
-    post.accept = 'json';
+//set or append header properties and they'll automatically be sent after open
+post.on('ready', () => {
+    post.headers.accept = 'json'; //adds 'application/json' to accept headers to be set
+    post.headers.encoding = 'multipart'; // sets Content-Type to 'multipart/form-data'
+    post.response.type = 'json'; //sets response type to application/json
 });
 ```
-
+You can check the response object's headers parameter to confirm response headers:
+```javascript
+post.on('responseHeaders', () => { // when readystate == 2
+    if (post.response.headers.contentType != 'application/json') {
+        post.abort();
+    }
+})
+```
 *note*: In beta, watch for updates

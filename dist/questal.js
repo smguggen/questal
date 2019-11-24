@@ -39,6 +39,17 @@ const QuestalUtil = class {
         }
         return test ? true : false;
     }
+
+    static toCamelCase(str) {
+        str = str || '';
+        return str.split('-').map((prop, ind) => {
+            if (ind > 0) {
+                return prop.substring(0,1).toUpperCase() + prop.substring(1);
+            } else {
+                return prop;
+            }
+        }).join('').trim();
+    }
 }
 
 const QuestalEvents = class {
@@ -173,7 +184,7 @@ const QuestalHeader = class {
         this.sender = sender;
         this.headers = {};
     }
-    
+
     set accept(type) {
         if (!this._accept) {
             this._accept = [];
@@ -192,7 +203,7 @@ const QuestalHeader = class {
             break;
         }
         if (res == '*/*') {
-          this._accept = ['*/*'];  
+          this._accept = ['*/*'];
         } else if (!this._accept.includes(res)) {
             this._accept.push(res);
         }
@@ -207,16 +218,16 @@ const QuestalHeader = class {
             return this._accept.join(',');
         }
     }
-    
+
     set encoding(type) {
         let $this = this;
         switch(type) {
-            case 'multipart': $this.encoding = 'multipart/form-data';
+            case 'multipart': $this._encoding = 'multipart/form-data';
             case 'form':
             break;
-            case 'plain': $this.encoding = 'text/plain';
+            case 'plain': $this._encoding = 'text/plain';
             break;
-            default:$this.encoding = 'application/x-www-form-urlencoded';
+            default:$this._encoding = 'application/x-www-form-urlencoded';
             break;
         }
     }
@@ -227,36 +238,38 @@ const QuestalHeader = class {
             return this._encoding;
         }
     }
-    
+
     set(key, value) {
          if (key.toLowerCase() == 'accept') {
                 this.accept = value;
-            } else if (key == 'encoding' || key == 'Content-Type') {
+            } else if (key == 'encoding' || key == 'Content-Type' || key == 'content') {
                 this.encoding = value;
             } else if (!this.isForbidden(key)) {
                 this.headers[key] = value;
             }
         return this;
     }
-    
+
     init() {
-        let keys = Object.keys(this.headers);
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
-            let value = this.headers[key];
-            if (!this.isForbidden(key)) {
-                this.sender.setRequestHeader(key, value);
-            }
-            if (this.accept) {
-                this.sender.setRequestHeader('Accept', this.accept);
-            }
-            if (this.encoding) {
-                this.sender.setRequestHeader('Content-Type', this.encoding);
+        if (this.sendable) {
+            let keys = Object.keys(this.headers);
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
+                let value = this.headers[key];
+                if (!this.isForbidden(key)) {
+                    this.sender.setRequestHeader(key, value);
+                }
+                if (this.accept) {
+                    this.sender.setRequestHeader('Accept', this.accept);
+                }
+                if (this.encoding) {
+                    this.sender.setRequestHeader('Content-Type', this.encoding);
+                }
             }
         }
         return this;
     }
-    
+
     isForbidden(key) {
        key = key.trim();
        if (key.startsWith('Sec-') || key.startsWith('Proxy-')) {
@@ -268,6 +281,15 @@ const QuestalHeader = class {
        }
        return false;
     }
+
+    sendable() {
+        if (this.sender.readyState >= 2) {
+            console.log('Headers already sent');
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 
 const QuestalResponse = class {
@@ -275,6 +297,42 @@ const QuestalResponse = class {
         this.sender = sender;
         this.defaultType = 'text';
         this.types = ['arraybuffer', 'blob', 'document', 'text', 'json'];
+    }
+
+    get headers() {
+        let res = this.sender.getAllResponseHeaders();
+        let result = {};
+        if (res) {
+            result = res.split('\r\n').reduce((acc, header) => {
+                let parts = header.split(':');
+                if (parts && parts.length == 2) {
+                    let key = QuestalUtil.toCamelCase(parts[0]);
+                    if (['contentType', 'cacheControl'].includes(key)) {
+                        let separator = key == 'contentType' ? ';' : ',';
+                        let sets = parts[1].split(separator);
+                        let val = sets[0].trim();
+                        acc[key] = val;
+                        if (key == 'contentType') {
+                            acc.encoding = val.split('/')[1];
+                        }
+                        if (sets.length > 1) {
+                            let params = sets[1].split('=');
+                            if (params.length > 1) {
+                                let param = QuestalUtil.toCamelCase(params[0]);
+                                acc[param] = params[1].trim();
+                            }
+                        }
+                    } else {
+                        acc[key] = parts[1].trim();
+                    }
+                }
+                return acc;
+            }, {});
+        }
+        if (this.type) {
+            result.responseType = this.type;
+        }
+        return result;
     }
 
     get data() {
@@ -315,8 +373,10 @@ const QuestalResponse = class {
 
     set type(type) {
         type = type == 'buffer' ? 'arraybuffer' : type;
-        if (this.types.includes(type) && this.sender.readyState < 3) {
+        if (this.types.includes(type) && this.sender.readyState < 2) {
                 this.sender.responseType = type;
+        } else {
+            console.log('Headers already sent');
         }
     }
     get type() {
@@ -342,11 +402,11 @@ const QuestalResponse = class {
 const QuestalRequest = class {
     constructor() {
         this.sender = new XMLHttpRequest();
-        this.events = new QuestalEvents(['init', 'send', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout']);
+        this.events = new QuestalEvents(['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout']);
         this.header = new QuestalHeader(this.sender);
         this.response = new QuestalResponse(this.sender);
         this._data = new QuestalData();
-        this.onComplete();
+        this._setDefaultEvents();
     }
 
     set url(url) {
@@ -366,7 +426,7 @@ const QuestalRequest = class {
 
     get state() {
         let st = this.sender.readyState;
-        let arr = ['unsent', 'opened', 'headers_received', 'loading', 'done'];
+        let arr = ['unsent', 'ready', 'responseHeaders', 'loadStart', 'complete'];
         return arr[st];
     }
 
@@ -449,12 +509,33 @@ const QuestalRequest = class {
             this.set('ontimeout', time);
         }
         this.sender.open(method, url);
-        this.events.fire('send', this.sender);
         this.sender.send();
         return this;
     }
 
-    onComplete() {
+
+    _onChange() {
+        let $this = this;
+        this.on('change', () =>{
+            switch($this.type) {
+                case 'ready': $this.fire('ready');
+                break;
+                case 'responseHeaders': $this.fire('responseHeaders');
+                break;
+                case 'loadStart': $this.fire('loadStart');
+                break;
+            }
+        });
+    }
+
+    _onReady() {
+        let $this = this;
+        this.on('ready', () => {
+            $this.header.init();
+        });
+    }
+
+    _onComplete() {
         let $this = this;
         this.on('complete', (event) => {
            if ($this.response.isSuccess()) {
@@ -463,38 +544,10 @@ const QuestalRequest = class {
         });
     }
 
-    accept(type) {
-        if (!type || /\*\s?\/\s?\*/.test(type)) {
-            type = '*/*';
-        }
-        if (!Array.isArray(type)) {
-            type = [type];
-        }
-        type = type.map((typ) => {
-            if (['jpeg', 'jpg', 'png', 'gif'].includes(typ)) {
-                return 'image/' + typ;
-            } else if (['mp4', 'mpeg', 'ogg', '3gpp', 'quicktime'].includes(typ)) {
-                return 'video/' + typ;
-            }
-            switch(typ) {
-                case 'html': return 'text/html';
-                break;
-                case 'json': return 'application/json';
-                break;
-                case 'xml': return 'application/xml';
-                break;
-                default: return typ;
-                break;
-            }
-        }).join(',');
-        if (this.state == 'opened') {
-            this.sender.setRequestHeader('Accept', type);
-        } else if (this.state == 'unsent') {
-            let $this = this;
-            this.on('send', () => {
-                $this.sender.setRequestHeader('Accept', type);
-            });
-        }
+    _setDefaultEvents() {
+        this._onChange();
+        this._onReady();
+        this._onComplete();
     }
 }
 
