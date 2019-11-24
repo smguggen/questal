@@ -85,6 +85,16 @@ const QuestalEvents = class {
         }
     }
 
+    add(event) {
+        if (!Array.isArray(event)) {
+            event = [event];
+        }
+        let $this = this;
+        event.forEach((ev) => {
+            $this.event = ev;
+        });
+    }
+
     schedule(event, ...params) {
         let $this = this;
         if (this.eventNames.includes(event) && this.events[event] && this.events[event].length) {
@@ -548,11 +558,11 @@ const Questal = class extends QuestalRequest {
         super();
     }
 
-    get Get() {
+    static Get() {
         return new QuestalGet();
     }
 
-    get Post() {
+    static Post() {
         return new QuestalPost();
     }
 
