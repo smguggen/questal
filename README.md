@@ -89,6 +89,6 @@ post.on('responseHeaders', () => { // when readystate == 2
     if (post.response.headers.contentType != 'application/json') {
         post.abort();
     }
-})
+});
 ```
 *note*: In beta, watch for updates
