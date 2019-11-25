@@ -27,7 +27,7 @@ You can make get and post requests with standard config by calling Questal.get o
 Questal.get('/path/to/dest', (data) => {console.log(data)});
 Questal.post('/path/to/dest', (data) => {console.log(data.json)});
 ```
-The data parameter passed to the callback is a Questal Response object containing the results of the request.
+The data parameter passed to the 'on success' callback is a Questal Response object containing the results of the request.
 
 #### data:
 ```javascript
