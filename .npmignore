@@ -5,3 +5,4 @@ bower_components
 .history
 .DS_Store
 example/
+_*.*

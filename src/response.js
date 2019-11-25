@@ -82,7 +82,7 @@ module.exports = class {
         if (this.types.includes(type) && this.sender.readyState < 2) {
                 this.sender.responseType = type;
         } else {
-            console.log('Headers already sent');
+            console.log('Can\'t set ' + type + '. Headers already sent');
         }
     }
     get type() {

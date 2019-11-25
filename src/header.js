@@ -8,23 +8,21 @@ module.exports = class {
         if (!this._accept) {
             this._accept = [];
         }
-        let res;
-        switch(type) {
-            case 'json': res = 'application/json';
-            break;
-            case 'html':res = 'text/html';
-            break;
-            case 'xml': res = 'application/xml, application/xhtml+xml';
-            break;
-            case 'plain': res = 'text/plain';
-            break;
-            default: res = type;
-            break;
-        }
-        if (res == '*/*') {
-          this._accept = ['*/*'];
-        } else if (!this._accept.includes(res)) {
-            this._accept.push(res);
+        if (Array.isArray(type)) {
+            if (type.includes('*') || type.includes('*/*')) {
+                this._accept = ['*/*'];
+                return;
+            }
+            let $this = this;
+            type.forEach((typ) => {
+                $this._parseAccept(typ);
+            });
+        } else {
+            if (['*', '*/*'].includes(type)) {
+                this._accept = ['*/*'];
+                return;
+            }
+            this._parseAccept(type);
         }
     }
     get accept() {
@@ -103,10 +101,28 @@ module.exports = class {
 
     sendable() {
         if (this.sender.readyState >= 2) {
-            console.log('Headers already sent');
             return false;
         } else {
             return true;
+        }
+    }
+
+    _parseAccept(type) {
+        let res;
+        switch(type) {
+            case 'json': res = 'application/json';
+            break;
+            case 'html':res = 'text/html';
+            break;
+            case 'xml': res = 'application/xml, application/xhtml+xml';
+            break;
+            case 'plain': res = 'text/plain';
+            break;
+            default: res = type;
+            break;
+        }
+        if (!this._accept.includes(res)) {
+            this._accept.push(res);
         }
     }
 }
