@@ -411,8 +411,8 @@ const QuestalRequest = class {
     on(event, callback) {
         let $this = this;
         this.sender.addEventListener(event, function(event) {
-            event.questal = $this;
-            callback(event);
+            let detail = event.detail || $this.sender;
+            callback.call($this, detail, event);
         });
     }
 
@@ -460,7 +460,7 @@ const QuestalRequest = class {
             switch($this.type) {
                 case 'ready': $this.fire('ready');
                 break;
-                case 'responseHeaders': $this.fire('responseHeaders');
+                case 'responseHeaders': $this.fire('responseHeaders', $this.header);
                 break;
                 case 'loadStart': $this.fire('loadStart');
                 break;
@@ -479,32 +479,23 @@ const QuestalRequest = class {
         let $this = this;
         this.on('load', (event) => {
            if ($this.response.isSuccess()) {
-               $this.fire('success', {response: $this.response});
+               $this.fire('success', $this.response);
            }
         });
     }
 
     _setEvents() {
-        this._scheduleAll({
-            load:'complete',
-            readystatechange: 'change',
-        });
+        this.schedule('load', 'complete', this.response);
+        this.schedule('readystatechange', 'change');
         this._onChange();
         this._onReady();
         this._onComplete();
     }
 
-    _schedule(event, alias, details) {
+    schedule(event, alias, details) {
         let $this = this;
         this.on(event, function() {
             $this.fire(alias, details);
-        });
-    }
-
-    _scheduleAll(events) {
-        let $this = this;
-        Object.keys(events).forEach((ev) => {
-            $this._schedule(ev, events[ev]);
         });
     }
 }
