@@ -26,6 +26,7 @@ const QuestalUtil = class {
             case 'array': test = Array.isArray(input);
             break;
             case 'object': test = typeof input === 'object' && input != null && !Array.isArray(input);
+            break;
             case 'regex': test = input instanceof RegExp;
             break;
             case 'null': test = !input;
@@ -49,6 +50,43 @@ const QuestalUtil = class {
                 return prop;
             }
         }).join('').trim();
+    }
+}
+
+const QuestalEvents = class {
+    constructor(target, caller) {
+        this.target = target;
+        this.caller = caller || target;
+    }
+
+    on(event, callback) {
+        event = event.split(' ');
+        let $this = this;
+        event.forEach((ev) => {
+            $this.target.addEventListener(ev, function(e) {
+                let detail = e.detail || $this.target;
+                callback.call($this.caller, detail, e);
+            });
+        });
+        return this;
+    }
+
+    off(event, callback) {
+        if (typeof callback === 'function' && callback.name) {
+            callback = callback.name;
+        }
+        this.target.removeEventListener(event, callback);
+        return this;
+    }
+
+    fire(event, detail, options) {
+        options = options || {};
+        this.target.dispatchEvent(new CustomEvent(event, {
+            bubbles: options.bubbles || false,
+            detail: detail || options.detail || null,
+            cancelable: options.cancelable || false,
+            composed: options.composed || false
+        }));
     }
 }
 
@@ -113,8 +151,8 @@ const QuestalData = class {
 }
 
 const QuestalHeader = class {
-    constructor(sender) {
-        this.sender = sender;
+    constructor(request) {
+        this.request = request;
         this.headers = {};
     }
 
@@ -188,13 +226,13 @@ const QuestalHeader = class {
                 let key = keys[i];
                 let value = this.headers[key];
                 if (!this.isForbidden(key)) {
-                    this.sender.setRequestHeader(key, value);
+                    this.request.setRequestHeader(key, value);
                 }
                 if (this.accept) {
-                    this.sender.setRequestHeader('Accept', this.accept);
+                    this.request.setRequestHeader('Accept', this.accept);
                 }
                 if (this.encoding) {
-                    this.sender.setRequestHeader('Content-Type', this.encoding);
+                    this.request.setRequestHeader('Content-Type', this.encoding);
                 }
             }
         }
@@ -214,7 +252,7 @@ const QuestalHeader = class {
     }
 
     sendable() {
-        if (this.sender.readyState >= 2) {
+        if (this.request.readyState >= 2) {
             return false;
         } else {
             return true;
@@ -242,14 +280,14 @@ const QuestalHeader = class {
 }
 
 const QuestalResponse = class {
-    constructor(sender) {
-        this.sender = sender;
+    constructor(request) {
+        this.request = request;
         this.defaultType = 'text';
         this.types = ['arraybuffer', 'blob', 'document', 'text', 'json'];
     }
 
     get headers() {
-        let res = this.sender.getAllResponseHeaders();
+        let res = this.request.getAllResponseHeaders();
         let result = {};
         if (res) {
             result = res.split('\r\n').reduce((acc, header) => {
@@ -287,17 +325,17 @@ const QuestalResponse = class {
     get data() {
         let oldType = this.type;
         this.type = 'json';
-        let res = this.sender.response;
+        let res = this.request.response;
         this.type = oldType;
         return res;
     }
 
     get url() {
-        return this.sender.responseURL;
+        return this.request.responseURL;
     }
 
     get result() {
-        return this.sender.responseText;
+        return this.request.responseText;
     }
 
     get json() {
@@ -310,11 +348,11 @@ const QuestalResponse = class {
     }
 
     get xml() {
-        return this.sender.responseXML;
+        return this.request.responseXML;
     }
     get html() {
         if (this.type == 'document') {
-            return this.sender.responseXML;
+            return this.request.responseXML;
         } else {
             return '';
         }
@@ -322,25 +360,29 @@ const QuestalResponse = class {
 
     set type(type) {
         type = type == 'buffer' ? 'arraybuffer' : type;
-        if (this.types.includes(type) && this.sender.readyState < 2) {
-                this.sender.responseType = type;
+        if (this.types.includes(type) && this.request.readyState < 2) {
+                this.request.responseType = type;
         } else {
             console.log('Can\'t set ' + type + '. Headers already sent');
         }
     }
     get type() {
-        return this.sender.responseType;
+        return this.request.responseType;
     }
 
     get status() {
-        return this.sender.statusText;
+        return this.request.statusText;
     }
 
     get code() {
-        return this.sender.status;
+        return this.request.status;
     }
 
     isSuccess() {
+        if (this.code == 304) {
+            console.log('Results shown are cached version returned from server.');
+            return true;
+        }
         return this.code >= 200 && this.code < 300;
     }
 
@@ -349,158 +391,189 @@ const QuestalResponse = class {
 }
 
 const QuestalRequest = class {
-    constructor() {
-        this.sender = new XMLHttpRequest();
-        this.events = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
-        this.header = new QuestalHeader(this.sender);
-        this.response = new QuestalResponse(this.sender);
-        this._data = new QuestalData();
-        this._setEvents();
+    constructor(options) {
+        this.options = options;
+        this.request = new XMLHttpRequest();
+        this.header = new QuestalHeader(this.request);
+        this.response = new QuestalResponse(this.request);
+        this.events = new QuestalEvents(this.request, this);
+        this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
+        this.data = new QuestalData();
+        this._init();
+    }
+
+    set method(m) {
+        this._method = m;
+    }
+    get method() {
+        return this._method;
     }
 
     set url(url) {
-        if (!QuestalUtil.typecheck(url)) {
+        if (!/\.[A-Z0-9\.]{2,}$/i.test(url)) {
             return;
         }
         let urls = url.split('?');
         this._url = urls[0];
         if (urls.length > 1) {
-            this.data = urls[1];
+            this.data.params = urls[1];
         }
     }
 
     get url() {
-        return this._url;
+        if (this.method == 'get' && this.data.params) {
+            return this._url + '?' + this.data.params;
+        } else {
+            return this._url;
+        }
     }
 
     get state() {
-        let st = this.sender.readyState;
+        let st = this.request.readyState;
         let arr = ['unsent', 'ready', 'responseHeaders', 'loadStart', 'complete'];
         return arr[st];
     }
 
-    set data(data) {
-        this._data.data = data;
-    }
-    get data() {
-        return this._data.data;
-    }
-    get params() {
-        return this._data.params;
+    set options(opt) {
+        opt = opt || {};
+        if (!this._options) {
+            this._options = {};
+        }
+        this._options = Object.assign({}, this._options, opt);
     }
 
-    abort() {
-        this.sender.abort();
-        return this;
+    get options() {
+        return this._options || {};
     }
 
     get(key) {
-        return this.sender[key];
+        return this.request[key];
     }
 
     set(key, value) {
         let $this = this;
         switch(key) {
-            case 'credentials':$this.sender.withCredentials = value;
+            case 'credentials':$this.request.withCredentials = value;
             break;
-            default:$this.sender[key] = value;
+            default:$this.request[key] = value;
+        }
+        return this;
+    }
+
+    open(url, data) {
+        this._presend(url, data);
+        this.request.open(this.method, this.url);
+        // ready event fires
+        return this;
+    }
+
+    send(body) {
+        if (this.state == 'ready') {
+            this.request.send(body);
+        } else {
+            throw new Error(`Request can\t be sent with a ready state of \"${this.state}\".`);
         }
         return this;
     }
 
     on(event, callback) {
-        event = event.split(' ');
-        let $this = this;
-        event.forEach((ev) => {
-            $this.sender.addEventListener(ev, function(e) {
-                let detail = e.detail || $this.sender;
-                callback.call($this, detail, e);
-            });
-        });
+        if (['progress', 'abort', 'error', 'timeout'].includes(event)) {
+            event = '_' + event;
+        }
+        this.events.on(event, callback);
+    }
+
+    off(event, callback) {
+        if (['progress', 'abort', 'error', 'timeout'].includes(event)) {
+            event = '_' + event;
+        }
+        this.events.off(event, callback);
+    }
+
+    abort() {
+        this.request.abort();
         return this;
     }
 
-    fire(event, detail, options) {
-        options = options || {};
-        this.sender.dispatchEvent(new CustomEvent(event, {
-            bubbles: options.bubbles || false,
-            detail: detail || options.detail || null,
-            cancelable: options.cancelable || false,
-            composed: options.composed || false
-        }));
+    onLoad() {
+        let $this = this;
+        this.on('load', function() {
+            $this.events.fire('complete', $this.response);
+            if ($this.response.isSuccess()) {
+                $this.events.fire('success', $this.response);
+            }
+        });
     }
 
-    init(method, url, options, settings) {
-        options = options || {};
-        if (typeof options === "function") {
-            options = {
-                success: options
+    onChange() {
+        let $this = this;
+        this.on('readystatechange', function() {
+            $this.events.fire('change');
+            switch($this.state) {
+                case 'ready': $this.events.fire('ready');
+                break;
+                case 'responseHeaders': $this.events.fire('responseHeaders', $this.header);
+                break;
+                case 'loadStart': $this.events.fire('loadStart');
+                break;
             }
-            if (typeof settings === "function") {
-                options.error = settings;
-            }
-        }
-        let keys = Object.keys(options);
+        });
+    }
+
+    onReady() {
+        this.on('ready', function() {
+            this.header.init();
+        });
+    }
+
+    _init() {
+        let $this = this;
+        this.url = this.options.url;
+        this.method = this.options.method || 'get';
+        this.data.params = this.options.data || this.options.params;
+        this.set('timeout', this.options.timeout || 60000);
+        let keys = Object.keys(this.options);
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
-            if (this.events.includes(key)) {
-                this.on(key, options[key]);
+            if (this.eventNames.includes(key)) {
+                this.on(key, this.options[key]);
             }
         }
-        this._onReady(options);
-        this.fire('init');
-        this.set('timeout', options.timeout || 60000);
-        this.sender.open(method, url);
-        return this;
-    }
-
-    send(body) {
-        body = body || null;
-        this.sender.send(body);
-    }
-
-    _onChange() {
-        this.on('change', function() {
-            switch(this.state) {
-                case 'ready': this.fire('ready');
-                break;
-                case 'responseHeaders': this.fire('responseHeaders', this.header);
-                break;
-                case 'loadStart': this.fire('loadStart');
-                break;
-            }
+        this.onLoad();
+        this.onChange();
+        this.on('progress', function(e) {
+            $this.events.fire('_progress', e);
         });
-    }
-
-    _onReady(options) {
-        let $this = this;
-        this.on('ready', () => {
-            $this.header.init();
+        this.on('abort', function() {
+            $this.events.fire('_abort');
         });
-    }
-
-    _onComplete() {
-        let $this = this;
-        this.on('load', (event) => {
-           if ($this.response.isSuccess()) {
-               $this.fire('success', $this.response);
-           }
+        this.on('error', function(e) {
+            $this.events.fire('_error', e);
         });
-    }
-
-    _setEvents() {
-        this.schedule('load', 'complete', this.response);
-        this.schedule('readystatechange', 'change');
-        this._onChange();
-        this._onComplete();
-    }
-
-    schedule(event, alias, details) {
-        let $this = this;
-        this.on(event, function() {
-            $this.fire(alias, details);
+        this.on('timeout', function() {
+            $this.events.fire('_timeout');
         });
+
+        this.onReady();
     }
+
+    _presend(url, data) {
+        if (url) {
+            this.url = url;
+        }
+        if (data) {
+            this.data.params = data;
+        }
+        this.events.fire('init');
+        if (!this.method) {
+            throw new Error('Request method is empty');
+        } else if (!this.url) {
+            throw new Error('Request Url is invalid');
+        } else {
+            return true;
+        }
+    }
+
 }
 
 const QuestalGet = class extends QuestalRequest {
@@ -515,13 +588,12 @@ const QuestalGet = class extends QuestalRequest {
 
     }
 
-    send(url, options) {
-        let $this = this;
-        options = options || {};
-        this.url = url;
-        this.data = options.data || {};
-        let query = this.params ? url + '?' + this.params : url;
-        this.init(this.method, query, options);
+    open() {
+        return null;
+    }
+
+    send(url, data) {
+        super.open(url, data)
         super.send();
     }
 
@@ -536,8 +608,8 @@ const QuestalGet = class extends QuestalRequest {
 }
 
 const QuestalPost = class extends QuestalRequest {
-    constructor() {
-        super();
+    constructor(options) {
+        super(options);
     }
 
     get method() {
@@ -547,15 +619,16 @@ const QuestalPost = class extends QuestalRequest {
 
     }
 
-   send(url, data, options, settings) {
-        this.url = url;
-        this.data = data || options || {};
-        options = options || {};
-        this.init(this.method, this.url, options, settings);
-        super.send(this.params);
+    open() {
+        return null;
     }
 
-    _onReady(options) {
+    send(url, data) {
+        super.open(url, data);
+        super.send(this.data.params);
+    }
+
+    onReady(options) {
         let $this = this;
         this.on('ready', () => {
             let type = options.accept || ['application/json'];
@@ -579,20 +652,32 @@ const Questal = class extends QuestalRequest {
         return new QuestalPost();
     }
 
-    static get(url, data, options, settings) {
-        if (typeof data === 'function' && !options) {
-            options = data;
+    static get(url, data, onSuccess, onError) {
+        //TODO fix option params
+        if (typeof data === 'function') {
+            onSuccess = data;
+            onError = onSuccess;
         }
-        let req = new QuestalGet();
-        return req.send(url, data, options, settings);
+        let req = new QuestalGet({
+            success:onSuccess,
+            error:onError
+        });
+
+        req.on('success', onSuccess);
+
+        return req.send(url, data);
     }
 
-    static post(url, data, options, settings) {
-        if (typeof data === 'function' && !options) {
-            options = data;
+    static post(url, data, onSuccess, onError) {
+        if (typeof data === 'function') {
+            onSuccess = data;
+            onError = onSuccess;
         }
-        let req = new QuestalPost();
-        return req.send(url, data, options, settings);
+        let req = new QuestalPost({
+            success:onSuccess,
+            error:onError
+        });
+        return req.send(url, data);
     }
 
 }

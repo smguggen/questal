@@ -26,6 +26,7 @@ module.exports = class {
             case 'array': test = Array.isArray(input);
             break;
             case 'object': test = typeof input === 'object' && input != null && !Array.isArray(input);
+            break;
             case 'regex': test = input instanceof RegExp;
             break;
             case 'null': test = !input;

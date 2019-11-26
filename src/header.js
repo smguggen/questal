@@ -1,6 +1,6 @@
 module.exports = class {
-    constructor(sender) {
-        this.sender = sender;
+    constructor(request) {
+        this.request = request;
         this.headers = {};
     }
 
@@ -74,13 +74,13 @@ module.exports = class {
                 let key = keys[i];
                 let value = this.headers[key];
                 if (!this.isForbidden(key)) {
-                    this.sender.setRequestHeader(key, value);
+                    this.request.setRequestHeader(key, value);
                 }
                 if (this.accept) {
-                    this.sender.setRequestHeader('Accept', this.accept);
+                    this.request.setRequestHeader('Accept', this.accept);
                 }
                 if (this.encoding) {
-                    this.sender.setRequestHeader('Content-Type', this.encoding);
+                    this.request.setRequestHeader('Content-Type', this.encoding);
                 }
             }
         }
@@ -100,7 +100,7 @@ module.exports = class {
     }
 
     sendable() {
-        if (this.sender.readyState >= 2) {
+        if (this.request.readyState >= 2) {
             return false;
         } else {
             return true;

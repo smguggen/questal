@@ -1,12 +1,12 @@
 module.exports = class {
-    constructor(sender) {
-        this.sender = sender;
+    constructor(request) {
+        this.request = request;
         this.defaultType = 'text';
         this.types = ['arraybuffer', 'blob', 'document', 'text', 'json'];
     }
 
     get headers() {
-        let res = this.sender.getAllResponseHeaders();
+        let res = this.request.getAllResponseHeaders();
         let result = {};
         if (res) {
             result = res.split('\r\n').reduce((acc, header) => {
@@ -44,17 +44,17 @@ module.exports = class {
     get data() {
         let oldType = this.type;
         this.type = 'json';
-        let res = this.sender.response;
+        let res = this.request.response;
         this.type = oldType;
         return res;
     }
 
     get url() {
-        return this.sender.responseURL;
+        return this.request.responseURL;
     }
 
     get result() {
-        return this.sender.responseText;
+        return this.request.responseText;
     }
 
     get json() {
@@ -67,11 +67,11 @@ module.exports = class {
     }
 
     get xml() {
-        return this.sender.responseXML;
+        return this.request.responseXML;
     }
     get html() {
         if (this.type == 'document') {
-            return this.sender.responseXML;
+            return this.request.responseXML;
         } else {
             return '';
         }
@@ -79,22 +79,22 @@ module.exports = class {
 
     set type(type) {
         type = type == 'buffer' ? 'arraybuffer' : type;
-        if (this.types.includes(type) && this.sender.readyState < 2) {
-                this.sender.responseType = type;
+        if (this.types.includes(type) && this.request.readyState < 2) {
+                this.request.responseType = type;
         } else {
             console.log('Can\'t set ' + type + '. Headers already sent');
         }
     }
     get type() {
-        return this.sender.responseType;
+        return this.request.responseType;
     }
 
     get status() {
-        return this.sender.statusText;
+        return this.request.statusText;
     }
 
     get code() {
-        return this.sender.status;
+        return this.request.status;
     }
 
     isSuccess() {

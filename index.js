@@ -15,20 +15,32 @@ module.exports = class extends QuestalRequest {
         return new QuestalPost();
     }
 
-    static get(url, data, options, settings) {
-        if (typeof data === 'function' && !options) {
-            options = data;
+    static get(url, data, onSuccess, onError) {
+        //TODO fix option params
+        if (typeof data === 'function') {
+            onSuccess = data;
+            onError = onSuccess;
         }
-        let req = new QuestalGet();
-        return req.send(url, data, options, settings);
+        let req = new QuestalGet({
+            success:onSuccess,
+            error:onError
+        });
+
+        req.on('success', onSuccess);
+
+        return req.send(url, data);
     }
 
-    static post(url, data, options, settings) {
-        if (typeof data === 'function' && !options) {
-            options = data;
+    static post(url, data, onSuccess, onError) {
+        if (typeof data === 'function') {
+            onSuccess = data;
+            onError = onSuccess;
         }
-        let req = new QuestalPost();
-        return req.send(url, data, options, settings);
+        let req = new QuestalPost({
+            success:onSuccess,
+            error:onError
+        });
+        return req.send(url, data);
     }
 
 }
