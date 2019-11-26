@@ -409,11 +409,15 @@ const QuestalRequest = class {
     }
 
     on(event, callback) {
+        event = event.split(' ');
         let $this = this;
-        this.sender.addEventListener(event, function(event) {
-            let detail = event.detail || $this.sender;
-            callback.call($this, detail, event);
+        event.forEach((ev) => {
+            $this.sender.addEventListener(ev, function(e) {
+                let detail = e.detail || $this.sender;
+                callback.call($this, detail, e);
+            });
         });
+        return this;
     }
 
     fire(event, detail, options) {
@@ -443,6 +447,7 @@ const QuestalRequest = class {
                 this.on(key, options[key]);
             }
         }
+        this._onReady(options);
         this.fire('init');
         this.set('timeout', options.timeout || 60000);
         this.sender.open(method, url);
@@ -455,20 +460,19 @@ const QuestalRequest = class {
     }
 
     _onChange() {
-        let $this = this;
-        this.on('readystatechange', () =>{
-            switch($this.type) {
-                case 'ready': $this.fire('ready');
+        this.on('change', function() {
+            switch(this.state) {
+                case 'ready': this.fire('ready');
                 break;
-                case 'responseHeaders': $this.fire('responseHeaders', $this.header);
+                case 'responseHeaders': this.fire('responseHeaders', this.header);
                 break;
-                case 'loadStart': $this.fire('loadStart');
+                case 'loadStart': this.fire('loadStart');
                 break;
             }
         });
     }
 
-    _onReady() {
+    _onReady(options) {
         let $this = this;
         this.on('ready', () => {
             $this.header.init();
@@ -488,7 +492,6 @@ const QuestalRequest = class {
         this.schedule('load', 'complete', this.response);
         this.schedule('readystatechange', 'change');
         this._onChange();
-        this._onReady();
         this._onComplete();
     }
 
@@ -522,7 +525,7 @@ const QuestalGet = class extends QuestalRequest {
         super.send();
     }
 
-    _onReady() {
+    _onReady(options) {
         let $this = this;
         this.on('ready', () => {
             let type = options.accept || ['plain', 'xml', 'html'];
@@ -552,7 +555,7 @@ const QuestalPost = class extends QuestalRequest {
         super.send(this.params);
     }
 
-    _onReady() {
+    _onReady(options) {
         let $this = this;
         this.on('ready', () => {
             let type = options.accept || ['application/json'];
@@ -577,11 +580,17 @@ const Questal = class extends QuestalRequest {
     }
 
     static get(url, data, options, settings) {
+        if (typeof data === 'function' && !options) {
+            options = data;
+        }
         let req = new QuestalGet();
         return req.send(url, data, options, settings);
     }
 
     static post(url, data, options, settings) {
+        if (typeof data === 'function' && !options) {
+            options = data;
+        }
         let req = new QuestalPost();
         return req.send(url, data, options, settings);
     }

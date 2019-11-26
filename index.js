@@ -16,11 +16,17 @@ module.exports = class extends QuestalRequest {
     }
 
     static get(url, data, options, settings) {
+        if (typeof data === 'function' && !options) {
+            options = data;
+        }
         let req = new QuestalGet();
         return req.send(url, data, options, settings);
     }
 
     static post(url, data, options, settings) {
+        if (typeof data === 'function' && !options) {
+            options = data;
+        }
         let req = new QuestalPost();
         return req.send(url, data, options, settings);
     }
