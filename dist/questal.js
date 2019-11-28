@@ -642,16 +642,15 @@ const Questal = class extends QuestalRequest {
         super();
     }
 
-    static Get() {
-        return new QuestalGet();
+    static Get(options) {
+        return new QuestalGet(options);
     }
 
-    static Post() {
-        return new QuestalPost();
+    static Post(options) {
+        return new QuestalPost(options);
     }
 
     static get(url, data, onSuccess, onError) {
-        //TODO fix option params
         if (typeof data === 'function') {
             onSuccess = data;
             onError = onSuccess;
@@ -660,8 +659,6 @@ const Questal = class extends QuestalRequest {
             success:onSuccess,
             error:onError
         });
-
-        //req.on('success', onSuccess);
 
         return req.send(url, data);
     }
