@@ -26,8 +26,6 @@ module.exports = class extends QuestalRequest {
             error:onError
         });
 
-        req.on('success', onSuccess);
-
         return req.send(url, data);
     }
 

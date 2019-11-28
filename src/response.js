@@ -82,7 +82,7 @@ module.exports = class {
         if (this.types.includes(type) && this.request.readyState < 2) {
                 this.request.responseType = type;
         } else {
-            console.log('Can\'t set ' + type + '. Headers already sent');
+            console.assert(false, 'Can\'t set ' + type + '. Headers already sent');
         }
     }
     get type() {
@@ -98,7 +98,9 @@ module.exports = class {
     }
 
     isSuccess() {
-        return this.code >= 200 && this.code < 300;
+        let code = this.code;
+        console.assert(code == 304, "Response Code 304: Server returned cached version of data");
+        return code >= 200 && (code < 300 || code == 304);
     }
 
 

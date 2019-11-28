@@ -363,7 +363,7 @@ const QuestalResponse = class {
         if (this.types.includes(type) && this.request.readyState < 2) {
                 this.request.responseType = type;
         } else {
-            console.log('Can\'t set ' + type + '. Headers already sent');
+            console.assert(false, 'Can\'t set ' + type + '. Headers already sent');
         }
     }
     get type() {
@@ -379,11 +379,9 @@ const QuestalResponse = class {
     }
 
     isSuccess() {
-        if (this.code == 304) {
-            console.log('Results shown are cached version returned from server.');
-            return true;
-        }
-        return this.code >= 200 && this.code < 300;
+        let code = this.code;
+        console.assert(code == 304, "Response Code 304: Server returned cached version of data");
+        return code >= 200 && (code < 300 || code == 304);
     }
 
 
@@ -392,7 +390,7 @@ const QuestalResponse = class {
 
 const QuestalRequest = class {
     constructor(options) {
-        this.options = options;
+        this.options = options || {};
         this.request = new XMLHttpRequest();
         this.header = new QuestalHeader(this.request);
         this.response = new QuestalResponse(this.request);
@@ -532,13 +530,6 @@ const QuestalRequest = class {
         this.method = this.options.method || 'get';
         this.data.params = this.options.data || this.options.params;
         this.set('timeout', this.options.timeout || 60000);
-        let keys = Object.keys(this.options);
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
-            if (this.eventNames.includes(key)) {
-                this.on(key, this.options[key]);
-            }
-        }
         this.onLoad();
         this.onChange();
         this.on('progress', function(e) {
@@ -555,6 +546,13 @@ const QuestalRequest = class {
         });
 
         this.onReady();
+        let keys = Object.keys(this.options);
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+            if (this.eventNames.includes(key)) {
+                this.on(key, this.options[key]);
+            }
+        }
     }
 
     _presend(url, data) {
@@ -577,8 +575,8 @@ const QuestalRequest = class {
 }
 
 const QuestalGet = class extends QuestalRequest {
-    constructor() {
-        super();
+    constructor(options) {
+        super(options);
     }
 
     get method() {
@@ -663,7 +661,7 @@ const Questal = class extends QuestalRequest {
             error:onError
         });
 
-        req.on('success', onSuccess);
+        //req.on('success', onSuccess);
 
         return req.send(url, data);
     }
