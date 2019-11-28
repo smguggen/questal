@@ -21,7 +21,7 @@ const questalConfig = (root, fn) => {
     let stream = fs.createWriteStream(dist);
     fn = fn || function(args) {
         if (args.err) {
-            console.log(err);
+            console.log(args.err);
         } else {
             console.log('success');
         }

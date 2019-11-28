@@ -51,6 +51,13 @@ const QuestalUtil = class {
             }
         }).join('').trim();
     }
+
+    static ucfirst(str) {
+        if (!str || typeof str !== 'string') {
+            return str;
+        }
+        return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
+    }
 }
 
 const QuestalEvents = class {
@@ -637,17 +644,38 @@ const QuestalPost = class extends QuestalRequest {
 
 }
 
-const Questal = class extends QuestalRequest {
+const Questal = class {
     constructor() {
-        super();
+        this.instance = null;
     }
 
-    static Get(options) {
-        return new QuestalGet(options);
+    get active() {
+        return this.instance ? true : false;
     }
 
-    static Post(options) {
-        return new QuestalPost(options);
+    Get() {
+        if (this.active ) {
+            this.abort();
+        }
+        this.instance = new QuestalGet(this.options);
+        return this.instance;
+    }
+
+    Post() {
+        if (this.active) {
+            this.abort();
+        }
+        this.instance = new QuestalPost(this.options);
+        return this.instance;
+    }
+
+    reset() {
+        if (!this.method) {
+            this.method = 'get';
+        }
+        let type = QuestalUtil.ucfirst(method);
+        this.instance = Function(`return new Questal${type}(this.options)`).call(this);
+        return this;
     }
 
     static get(url, data, onSuccess, onError) {

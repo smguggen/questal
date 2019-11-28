@@ -1,12 +1,12 @@
 module.exports = class {
     constructor(request) {
-        this.request = request;
+        this.settings = request;
         this.defaultType = 'text';
         this.types = ['arraybuffer', 'blob', 'document', 'text', 'json'];
     }
 
     get headers() {
-        let res = this.request.getAllResponseHeaders();
+        let res = this.settings.getAllResponseHeaders();
         let result = {};
         if (res) {
             result = res.split('\r\n').reduce((acc, header) => {
@@ -44,17 +44,17 @@ module.exports = class {
     get data() {
         let oldType = this.type;
         this.type = 'json';
-        let res = this.request.response;
+        let res = this.settings.response;
         this.type = oldType;
         return res;
     }
 
     get url() {
-        return this.request.responseURL;
+        return this.settings.responseURL;
     }
 
     get result() {
-        return this.request.responseText;
+        return this.settings.responseText;
     }
 
     get json() {
@@ -67,11 +67,11 @@ module.exports = class {
     }
 
     get xml() {
-        return this.request.responseXML;
+        return this.settings.responseXML;
     }
     get html() {
         if (this.type == 'document') {
-            return this.request.responseXML;
+            return this.settings.responseXML;
         } else {
             return '';
         }
@@ -79,22 +79,22 @@ module.exports = class {
 
     set type(type) {
         type = type == 'buffer' ? 'arraybuffer' : type;
-        if (this.types.includes(type) && this.request.readyState < 2) {
-                this.request.responseType = type;
+        if (this.types.includes(type) && this.settings.readyState < 2) {
+                this.settings.responseType = type;
         } else {
             console.assert(false, 'Can\'t set ' + type + '. Headers already sent');
         }
     }
     get type() {
-        return this.request.responseType;
+        return this.settings.responseType;
     }
 
     get status() {
-        return this.request.statusText;
+        return this.settings.statusText;
     }
 
     get code() {
-        return this.request.status;
+        return this.settings.status;
     }
 
     isSuccess() {
