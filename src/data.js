@@ -1,6 +1,6 @@
 const QuestalUtil = require('../src/util.js');
 
-module.exports = class {
+class QuestalData {
 
     set data(data) {
         this.setData(data);
@@ -59,3 +59,5 @@ module.exports = class {
         return data + str;
     }
 }
+
+module.exports = QuestalData;

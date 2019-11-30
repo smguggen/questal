@@ -1,4 +1,4 @@
-module.exports = class {
+class QuestalUtil {
 
     static getType(input) {
         if (input instanceof RegExp) {
@@ -59,3 +59,5 @@ module.exports = class {
         return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }
+
+module.exports = QuestalUtil;

@@ -1,4 +1,4 @@
-module.exports = class {
+class QuestalEvents {
     constructor(target, caller) {
         this.target = target;
         this.caller = caller || target;
@@ -34,3 +34,5 @@ module.exports = class {
         }));
     }
 }
+
+module.exports = QuestalEvents;

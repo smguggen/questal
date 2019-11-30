@@ -2,7 +2,7 @@ const QuestalGet = require('./lib/get.js');
 const QuestalPost = require('./lib/post.js');
 const QuestalUtil = require('./lib/util.js');
 
-module.exports = class {
+class Questal {
     constructor(type, options) {
         this.options = options || {};
         if (type) {
@@ -77,3 +77,5 @@ module.exports = class {
         return this[type](this.options);
     }
 }
+
+module.exports = Questal;

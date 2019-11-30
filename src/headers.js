@@ -1,4 +1,4 @@
-module.exports = class {
+class QuestalHeaders {
     constructor(request) {
         this.settings = request;
         this.headers = {};
@@ -126,3 +126,5 @@ module.exports = class {
         }
     }
 }
+
+module.exports = QuestalHeaders;

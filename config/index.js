@@ -7,14 +7,13 @@ const questalConfig = (root, fn) => {
         fs.unlinkSync(dist);
     }
 
-    function writeFiles(files, dir, stream, callback) {
+    function writeFiles(files, dir, stream) {
         files.forEach((key) => {
-            let name = callback(key);
             let url = dir ? `${dir}/${key}.js` : `${key}.js`;
             let file = fs.readFileSync(path.resolve(root, url), 'utf-8');
-            let str = /module\.exports/.exec(file);
-            file = file.substring(str.index).replace(/module\.exports\s?\=[.\n\s]*/, `const ${name} = `);
-            stream.write(file + '\n\n');
+            let str = /class/.exec(file);
+            file = file.substring(str.index).replace(/module\.exports\s?\=.*$/, '');
+            stream.write(file);
         });
     }
 
@@ -46,15 +45,9 @@ const questalConfig = (root, fn) => {
         });
     });
 
-    writeFiles(['util', 'events', 'data', 'headers', 'response'], 'src', stream, (key) => {
-        return `Questal${key.substring(0,1).toUpperCase() + key.substring(1)}`;
-    });
-    writeFiles(['request', 'get', 'post'], 'lib', stream, (key) => {
-        return `Questal${key.substring(0,1).toUpperCase() + key.substring(1)}`;
-    });
-    writeFiles(['index'], null, stream, (key) => {
-        return 'Questal';
-    });
+    writeFiles(['util', 'events', 'data', 'headers', 'response'], 'src', stream);
+    writeFiles(['request', 'get', 'post'], 'lib', stream);
+    writeFiles(['index'], null, stream);
 
     stream.close();
 }

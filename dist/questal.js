@@ -1,4 +1,4 @@
-const QuestalUtil = class {
+class QuestalUtil {
 
     static getType(input) {
         if (input instanceof RegExp) {
@@ -60,7 +60,7 @@ const QuestalUtil = class {
     }
 }
 
-const QuestalEvents = class {
+class QuestalEvents {
     constructor(target, caller) {
         this.target = target;
         this.caller = caller || target;
@@ -97,7 +97,7 @@ const QuestalEvents = class {
     }
 }
 
-const QuestalData = class {
+class QuestalData {
 
     set data(data) {
         this.setData(data);
@@ -157,7 +157,7 @@ const QuestalData = class {
     }
 }
 
-const QuestalHeaders = class {
+class QuestalHeaders {
     constructor(request) {
         this.settings = request;
         this.headers = {};
@@ -286,7 +286,7 @@ const QuestalHeaders = class {
     }
 }
 
-const QuestalResponse = class {
+class QuestalResponse {
     constructor(request) {
         this.settings = request;
         this.defaultType = 'text';
@@ -397,12 +397,9 @@ const QuestalResponse = class {
         }
         return code >= 200 && (code < 300 || code == 304);
     }
-
-
-
 }
 
-const QuestalRequest = class {
+class QuestalRequest {
     constructor(options) {
         this.options = options || {};
         this.settings = new XMLHttpRequest();
@@ -594,7 +591,7 @@ const QuestalRequest = class {
 
 }
 
-const QuestalGet = class extends QuestalRequest {
+class QuestalGet extends QuestalRequest {
     constructor(options) {
         super(options);
     }
@@ -625,7 +622,7 @@ const QuestalGet = class extends QuestalRequest {
     }
 }
 
-const QuestalPost = class extends QuestalRequest {
+class QuestalPost extends QuestalRequest {
     constructor(options) {
         super(options);
     }
@@ -658,7 +655,7 @@ const QuestalPost = class extends QuestalRequest {
 
 }
 
-const Questal = class {
+class Questal {
     constructor(type, options) {
         this.options = options || {};
         if (type) {

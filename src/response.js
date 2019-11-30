@@ -1,4 +1,4 @@
-module.exports = class {
+class QuestalResponse {
     constructor(request) {
         this.settings = request;
         this.defaultType = 'text';
@@ -109,7 +109,6 @@ module.exports = class {
         }
         return code >= 200 && (code < 300 || code == 304);
     }
-
-
-
 }
+
+module.exports = QuestalResponse;
