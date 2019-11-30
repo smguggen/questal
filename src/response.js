@@ -54,13 +54,18 @@ module.exports = class {
     }
 
     get result() {
-        return this.settings.responseText;
+        if (['', 'text'].includes(this.type)) {
+            return this.settings.responseText;
+        } else {
+            return this.settings.response;
+        }
     }
 
     get json() {
         let res = this.result
         try {
-            return JSON.parse(res);
+            let json = JSON.parse(res);
+            return typeof json === 'string' ? JSON.parse(json) : json;
         } catch(e) {
             return res;
         }
@@ -99,7 +104,9 @@ module.exports = class {
 
     isSuccess() {
         let code = this.code;
-        console.assert(code == 304, "Response Code 304: Server returned cached version of data");
+        if (code == 304) {
+            console.warn("Response Code 304: Server returned cached version of data");
+        }
         return code >= 200 && (code < 300 || code == 304);
     }
 

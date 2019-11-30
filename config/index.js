@@ -46,7 +46,7 @@ const questalConfig = (root, fn) => {
         });
     });
 
-    writeFiles(['util', 'events', 'data', 'header', 'response'], 'src', stream, (key) => {
+    writeFiles(['util', 'events', 'data', 'headers', 'response'], 'src', stream, (key) => {
         return `Questal${key.substring(0,1).toUpperCase() + key.substring(1)}`;
     });
     writeFiles(['request', 'get', 'post'], 'lib', stream, (key) => {

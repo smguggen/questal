@@ -22,10 +22,13 @@ const questal = require('questal');
 ```
 Basic Usage:
 -------------
-You can make get and post requests with standard config by calling Questal.get or Questal.post statically.
+You can make get and post requests with standard config by calling questal's static methods.
 ```javascript
-Questal.get('/path/to/dest', (data) => {console.log(data)});
-Questal.post('/path/to/dest', (data) => {console.log(data.json)});
+//static get request
+Questal.get('/path/to/dest', function(data, event) {console.log(data)});
+
+//static post request
+Questal.post('/path/to/dest', function(data, event) { console.log(data.json)});
 ```
 The data parameter passed to the 'on success' callback is a Questal Response object containing the results of the request.
 
@@ -70,11 +73,14 @@ QuestalResponse {
 
 To set more customized options grab a new instance of the proper object
 ```javascript
-// returns new Questal Get Object
-let get = Questal.Get();
+const q = new Questal();
 
-// returns new Questal Post Object
-let post = Questal.Post();
+//get request using Questal instance
+let get = q.Get({url:'/path/to/dest', success: (data, event) => console.log(data) });
+get.send();
+
+//post request using questal instance
+let post = q.Post({url:'/path/to/dest', success: (data, event) => console.log(data.json) });
 
 //set or append header properties and they'll automatically be sent after open
 post.on('ready', () => {
@@ -87,8 +93,11 @@ You can check the response object's headers parameter to confirm response header
 ```javascript
 post.on('responseHeaders', () => { // when readystate == 2
     if (post.response.headers.contentType != 'application/json') {
-        post.abort();
+        console.log(headers); //print questal response header object to console
     }
 });
+
+//after setup, send request
+post.send();
 ```
 *note*: In beta, watch for updates

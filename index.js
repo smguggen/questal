@@ -13,42 +13,16 @@ module.exports = class {
         }
     }
 
-    get active() {
-        return this.request ? true : false;
-    }
-
-    get method() {
-        if (!this.active) {
-            return null;
-        }
-        return this.request.method;
-    }
-
-    set method(m) {
-        return;
-    }
-
     Get(options) {
-        this.options = object.assign({}, options || {}, this.options);
+        this.options = Object.assign({}, this.options, options || {});
         this.request = new QuestalGet(this.options);
-        return this;
+        return this.request;
     }
 
     Post(options) {
-        this.options = object.assign({}, options || {}, this.options);
+        this.options = Object.assign({}, this.options, options || {});
         this.request = new QuestalPost(this.options);
-        return this;
-    }
-
-    reset(options) {
-        if (this.active) {
-            this.request.abort();
-        }
-        if (options) {
-            this.options = options || {};
-        }
-        let type = QuestalUtil.ucfirst(this.method);
-        return this[type](this.options);
+        return this.request;
     }
 
     static get(url, data, onSuccess, onError) {
@@ -76,4 +50,30 @@ module.exports = class {
         return req.send(url, data);
     }
 
+
+    get active() {
+        return this.request ? true : false;
+    }
+
+    get method() {
+        if (!this.active) {
+            return null;
+        }
+        return this.request.method;
+    }
+
+    set method(m) {
+        return;
+    }
+
+    reset(options) {
+        if (this.active) {
+            this.request.abort();
+        }
+        if (options) {
+            this.options = options || {};
+        }
+        let type = QuestalUtil.ucfirst(this.method);
+        return this[type](this.options);
+    }
 }
