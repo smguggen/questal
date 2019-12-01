@@ -1,21 +1,22 @@
 import Questal from './questal.js';
 
 //static get request
-Questal.get('/data', function(data, event) {console.log(data, event)});
+Questal.Get('/data', function(data, event) {console.log(data.json)});
 
 //static post request
-Questal.post('/data', function(data, event) { console.log(data.json)});
+Questal.Post('/data', function(data, event) { console.log(data, event)});
 
 //get request using Questal instance
 let q = new Questal();
-let get = q.Get({url:'/data', success: function(data) { console.log(this, data.json)} });
+let get = q.get({url:'/data', success: function(data) { console.log(this, data.json)} });
 get.send();
 
 //post request using questal instance
-let post = q.Post(
+let post = q.post(
     {
         url:'/data',
         success: function(data) {
+            console.log(this);
             let table = document.getElementById('table');
             let rows = data.json.join('');
             table.innerHTML = rows;

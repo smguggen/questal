@@ -25,10 +25,10 @@ Basic Usage:
 You can make get and post requests with standard config by calling questal's static methods.
 ```javascript
 //static get request
-Questal.get('/path/to/dest', function(data, event) {console.log(data)});
+Questal.Get('/path/to/dest', function(data, event) {console.log(data)});
 
 //static post request
-Questal.post('/path/to/dest', function(data, event) { console.log(data.json)});
+Questal.Post('/path/to/dest', function(data, event) { console.log(data.json)});
 ```
 The data parameter passed to the 'on success' callback is a Questal Response object containing the results of the request.
 
@@ -76,11 +76,11 @@ To set more customized options grab a new instance of the proper object
 const q = new Questal();
 
 //get request using Questal instance
-let get = q.Get({url:'/path/to/dest', success: (data, event) => console.log(data) });
+let get = q.get({url:'/path/to/dest', success: (data, event) => console.log(data) });
 get.send();
 
 //post request using questal instance
-let post = q.Post(
+let post = q.post(
     {
         url:'/data',
         success: function(data) { // see Example ('./example') for full details

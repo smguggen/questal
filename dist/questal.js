@@ -415,7 +415,7 @@ class QuestalRequest {
         this._method = m;
     }
     get method() {
-        return this._method;
+        return this._method || null;
     }
 
     set url(url) {
@@ -656,29 +656,29 @@ class QuestalPost extends QuestalRequest {
 }
 
 class Questal {
-    constructor(type, options) {
-        this.options = options || {};
-        if (type) {
-            type = QuestalUtil.ucfirst(this.method);
-            this.request = Function(`return new Questal${type}()`).call();
+
+    request(method, options) {
+        method = method ? method.toLowerCase() : null
+        if (method == 'get') {
+            return this.get(options);
+        } else if (method == 'post') {
+            return this.post(options);
         } else {
-            this.request = null;
+            let req = new QuestalRequest(options);
+            req.method = method || null;
+            return req;
         }
     }
 
-    Get(options) {
-        this.options = Object.assign({}, this.options, options || {});
-        this.request = new QuestalGet(this.options);
-        return this.request;
+    get(options) {
+        return new QuestalGet(options);
     }
 
-    Post(options) {
-        this.options = Object.assign({}, this.options, options || {});
-        this.request = new QuestalPost(this.options);
-        return this.request;
+    post(options) {
+        return new QuestalPost(options);
     }
 
-    static get(url, data, onSuccess, onError) {
+    static Get(url, data, onSuccess, onError) {
         if (typeof data === 'function') {
             onSuccess = data;
             onError = onSuccess;
@@ -691,7 +691,7 @@ class Questal {
         return req.send(url, data);
     }
 
-    static post(url, data, onSuccess, onError) {
+    static Post(url, data, onSuccess, onError) {
         if (typeof data === 'function') {
             onSuccess = data;
             onError = onSuccess;
@@ -701,33 +701,6 @@ class Questal {
             error:onError
         });
         return req.send(url, data);
-    }
-
-
-    get active() {
-        return this.request ? true : false;
-    }
-
-    get method() {
-        if (!this.active) {
-            return null;
-        }
-        return this.request.method;
-    }
-
-    set method(m) {
-        return;
-    }
-
-    reset(options) {
-        if (this.active) {
-            this.request.abort();
-        }
-        if (options) {
-            this.options = options || {};
-        }
-        let type = QuestalUtil.ucfirst(this.method);
-        return this[type](this.options);
     }
 }
 
