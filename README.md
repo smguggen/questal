@@ -80,7 +80,15 @@ let get = q.Get({url:'/path/to/dest', success: (data, event) => console.log(data
 get.send();
 
 //post request using questal instance
-let post = q.Post({url:'/path/to/dest', success: (data, event) => console.log(data.json) });
+let post = q.Post(
+    {
+        url:'/data',
+        success: function(data) { // see Example ('./example') for full details
+            let table = document.getElementById('table');
+            let rows = data.json.join('');
+            table.innerHTML = rows;
+        }
+});
 
 //set or append header properties and they'll automatically be sent after open
 post.on('ready', () => {

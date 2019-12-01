@@ -1,18 +1,26 @@
 import Questal from './questal.js';
 
 //static get request
-Questal.get('data.json', function(data, event) {console.log(data, event)});
+Questal.get('/data', function(data, event) {console.log(data, event)});
 
 //static post request
 Questal.post('/data', function(data, event) { console.log(data.json)});
 
 //get request using Questal instance
 let q = new Questal();
-let get = q.Get({url:'data.json', success: function(data) { console.log(this, data.json)} });
+let get = q.Get({url:'/data', success: function(data) { console.log(this, data.json)} });
 get.send();
 
 //post request using questal instance
-let post = q.Post({url:'/data', success: function(data) { console.log(this, data.json)} });
+let post = q.Post(
+    {
+        url:'/data',
+        success: function(data) {
+            let table = document.getElementById('table');
+            let rows = data.json.join('');
+            table.innerHTML = rows;
+        }
+});
 
 post.on('ready', () => {
     post.headers.accept = 'json'; //adds 'application/json' to accept headers to be set
