@@ -287,7 +287,8 @@ class QuestalHeaders {
 }
 
 class QuestalResponse {
-    constructor(request) {
+    constructor(request, omitBody) {
+        this.hasBody = !omitBody;
         this.settings = request;
         this.defaultType = 'text';
         this.types = ['arraybuffer', 'blob', 'document', 'text', 'json'];
@@ -329,41 +330,45 @@ class QuestalResponse {
         return result;
     }
 
-    get data() {
-        let oldType = this.type;
-        this.type = 'json';
-        let res = this.settings.response;
-        this.type = oldType;
-        return res;
-    }
-
     get url() {
         return this.settings.responseURL;
     }
 
     get result() {
-        if (['', 'text'].includes(this.type)) {
-            return this.settings.responseText;
+        if (this.hasBody) {
+            if (['', 'text'].includes(this.type)) {
+                return this.settings.responseText;
+            } else {
+                return this.settings.response;
+            }
         } else {
-            return this.settings.response;
+            return this.headers;
         }
     }
 
     get json() {
+        if (this.hasBody) {
         let res = this.result
-        try {
-            let json = JSON.parse(res);
-            return typeof json === 'string' ? JSON.parse(json) : json;
-        } catch(e) {
-            return res;
+            try {
+                let json = JSON.parse(res);
+                return typeof json === 'string' ? JSON.parse(json) : json;
+            } catch(e) {
+                return res;
+            }
+        } else {
+            return [];
         }
     }
 
     get xml() {
-        return this.settings.responseXML;
+        if (this.hasBody) {
+            return this.settings.responseXML;
+        } else {
+            return '';
+        }
     }
     get html() {
-        if (this.type == 'document') {
+        if (this.hasBody && this.type == 'document') {
             return this.settings.responseXML;
         } else {
             return '';
@@ -392,6 +397,10 @@ class QuestalResponse {
 
     isSuccess() {
         let code = this.code;
+        return code >= 200 && code < 300;
+    }
+
+    success304(code) {
         if (code == 304) {
             console.warn("Response Code 304: Server returned cached version of data");
         }
@@ -400,15 +409,29 @@ class QuestalResponse {
 }
 
 class QuestalRequest {
-    constructor(options) {
+    constructor(options, omitBody) {
         this.options = options || {};
         this.settings = new XMLHttpRequest();
         this.headers = new QuestalHeaders(this.settings);
-        this.response = new QuestalResponse(this.settings);
+        this.response = new QuestalResponse(this.settings, omitBody);
         this.events = new QuestalEvents(this.settings, this);
         this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
         this.data = new QuestalData();
         this._init();
+    }
+
+    set success(fn) {
+        if (typeof fn === 'function') {
+            this._success = fn;
+        }
+    }
+
+    get success() {
+        if (this._success && typeof this._success === 'function') {
+            return this._success(this.response.code);
+        } else {
+            return this.response.isSuccess();
+        }
     }
 
     set method(m) {
@@ -506,7 +529,7 @@ class QuestalRequest {
         let $this = this;
         this.on('load', function() {
             $this.events.fire('complete', $this.response);
-            if ($this.response.isSuccess()) {
+            if ($this.success) {
                 $this.events.fire('success', $this.response);
             }
         });
@@ -594,6 +617,7 @@ class QuestalRequest {
 class QuestalGet extends QuestalRequest {
     constructor(options) {
         super(options);
+        this.success = this.response.success304;
     }
 
     get method() {
@@ -625,6 +649,7 @@ class QuestalGet extends QuestalRequest {
 class QuestalPost extends QuestalRequest {
     constructor(options) {
         super(options);
+        this.success = this.response.success304;
     }
 
     get method() {

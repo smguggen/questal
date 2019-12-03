@@ -109,6 +109,10 @@ class QuestalResponse {
 
     isSuccess() {
         let code = this.code;
+        return code >= 200 && code < 300;
+    }
+
+    success304(code) {
         if (code == 304) {
             console.warn("Response Code 304: Server returned cached version of data");
         }
