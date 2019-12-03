@@ -24,7 +24,7 @@ let post = q.post(
 });
 
 post.headers.accept = 'json'; //adds 'application/json' to acceptheaders to be set
-post.headers.encoding = 'multipart'; // sets Content-Type to 'multipartform-data'
+post.headers.encoding = 'multipart'; // sets Content-Type to 'multipart/form-data'
 post.response.type = 'json'; //sets response type to application/json
 
 post.on('responseHeaders', (headers) => { // when readystate == 2
@@ -34,4 +34,3 @@ post.on('responseHeaders', (headers) => { // when readystate == 2
 });
 
 post.send();
-

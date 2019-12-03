@@ -92,7 +92,7 @@ let post = q.post(
 
 //set or append header properties and they'll automatically be sent after open, for other tasks intended to run on readyState == 1, use questal.on('ready', callback)
 post.headers.accept = 'json'; //adds 'application/json' to acceptheaders to be set
-post.headers.encoding = 'multipart'; // sets Content-Type to 'multipartform-data'
+post.headers.encoding = 'multipart'; // sets Content-Type to 'multipart/form-data'
 post.response.type = 'json'; //sets response type to application/json
 ```
 You can check the response object's headers parameter to confirm response headers:
