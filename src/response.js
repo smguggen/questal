@@ -92,7 +92,11 @@ class QuestalResponse {
         if (this.types.includes(type) && this.settings.readyState < 2) {
                 this.settings.responseType = type;
         } else {
-            console.assert(false, 'Can\'t set ' + type + '. Headers already sent');
+            if (!this.types.includes(type)) {
+                console.error(`Type ${type} is not a valid response type`);
+            } else {
+                console.error('Can\'t set ' + type + '. Headers already sent');
+            }
         }
     }
     get type() {
