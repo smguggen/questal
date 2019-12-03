@@ -46,7 +46,7 @@ const questalConfig = (root, fn) => {
     });
 
     writeFiles(['util', 'events', 'data', 'headers', 'response'], 'src', stream);
-    writeFiles(['request', 'get', 'post'], 'lib', stream);
+    writeFiles(['request', 'get', 'post', 'delete'], 'lib', stream);
     writeFiles(['index'], null, stream);
 
     stream.close();
