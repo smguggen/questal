@@ -1,5 +1,6 @@
 class QuestalResponse {
-    constructor(request) {
+    constructor(request, omitBody) {
+        this.hasBody = !omitBody;
         this.settings = request;
         this.defaultType = 'text';
         this.types = ['arraybuffer', 'blob', 'document', 'text', 'json'];
@@ -41,41 +42,45 @@ class QuestalResponse {
         return result;
     }
 
-    get data() {
-        let oldType = this.type;
-        this.type = 'json';
-        let res = this.settings.response;
-        this.type = oldType;
-        return res;
-    }
-
     get url() {
         return this.settings.responseURL;
     }
 
     get result() {
-        if (['', 'text'].includes(this.type)) {
-            return this.settings.responseText;
+        if (this.hasBody) {
+            if (['', 'text'].includes(this.type)) {
+                return this.settings.responseText;
+            } else {
+                return this.settings.response;
+            }
         } else {
-            return this.settings.response;
+            return this.headers;
         }
     }
 
     get json() {
+        if (this.hasBody) {
         let res = this.result
-        try {
-            let json = JSON.parse(res);
-            return typeof json === 'string' ? JSON.parse(json) : json;
-        } catch(e) {
-            return res;
+            try {
+                let json = JSON.parse(res);
+                return typeof json === 'string' ? JSON.parse(json) : json;
+            } catch(e) {
+                return res;
+            }
+        } else {
+            return [];
         }
     }
 
     get xml() {
-        return this.settings.responseXML;
+        if (this.hasBody) {
+            return this.settings.responseXML;
+        } else {
+            return '';
+        }
     }
     get html() {
-        if (this.type == 'document') {
+        if (this.hasBody && this.type == 'document') {
             return this.settings.responseXML;
         } else {
             return '';
