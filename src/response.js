@@ -58,6 +58,19 @@ class QuestalResponse {
         }
     }
 
+    get text() {
+         if (this.hasBody) {
+            let res = this.json;
+            try {
+                return JSON.stringify(res);
+            } catch(e) {
+                return res.toString();
+            }
+         } else {
+             return '';
+         }
+    }
+
     get json() {
         if (this.hasBody) {
         let res = this.result

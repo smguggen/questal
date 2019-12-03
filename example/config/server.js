@@ -3,6 +3,9 @@ const app = server();
 const fs = require('fs');
 const path = require('path');
 
+app.use(server.json());
+app.use(server.urlencoded({ extended: true }));
+
 app.post('/*', function(req, res, next) {
     let file = req.path.replace('/', '');
     let method = req.params && req.params.method ? req.params.method : 'index';
@@ -23,6 +26,34 @@ app.get('/data', function(req, res) {
             res.json(data);
         }
     })
+});
+
+app.put('/*', function(req, res) {
+    let file = path.join('.', req.path);
+    fs.writeFile(file, req.body.file, (err) => {
+        if (err) {
+            console.error(err);
+            res.send(err);
+        } else {
+            res.send('PUT');
+        }
+    });
+});
+
+app.delete('/*', function(req, res) {
+    let file = path.join('.', req.path);
+    if (fs.existsSync(file)) {
+        fs.unlink(file, (err) => {
+            if (err) {
+                console.error(err);
+                res.send(err);
+            } else {
+                res.send('DELETED');
+            }
+        });
+    } else {
+        res.send('File Not Found');
+    }
 });
 
 app.use(server.static('.'));

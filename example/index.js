@@ -8,8 +8,6 @@ Questal.Post('/data', function(data, event) { console.log(data, event)});
 
 //get request using Questal instance
 let q = new Questal();
-let get = q.get({url:'/data', success: function(data) { console.log(this, data.json)} });
-get.send();
 
 //post request using questal instance
 let post = q.post(
@@ -34,3 +32,21 @@ post.on('responseHeaders', (headers) => { // when readystate == 2
 });
 
 post.send();
+
+
+let get = q.get({url:'/data', success: function(data) { console.log(this, data.json)} });
+
+get.on('success', (res) => {
+    // Turn the results of the request into its own file using the put method
+    q.put('/data/data2.json', {file: res.text});
+});
+
+get.send();
+
+//add an event handler to delete the new file
+document.getElementById('btn').addEventListener('click', function() {
+    q.delete('/data/data2.json', res => alert(res.text));
+});
+
+
+

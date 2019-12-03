@@ -52,10 +52,9 @@ class QuestalData {
     parseParamsToString(obj, withMark) {
         obj = obj || {};
         let data = withMark ? '?' : '';
-        let str = Object.keys(obj).reduce((acc, param) => {
-            acc += encodeURIComponent(params) + '=' + encodeURIComponent(obj[param]);
-            return acc;
-        }, '').join('&');
+        let str = Object.keys(obj).map((param) => {
+            return encodeURIComponent(param) + '=' + encodeURIComponent(obj[param]);
+        }).join('&');
         return data + str;
     }
 }

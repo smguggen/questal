@@ -4,12 +4,9 @@ class QuestalUtil {
         if (input instanceof RegExp) {
             return 'regex';
         } else if (typeof input === 'object') {
-            if (typeof obj !== 'object') {
-                return false;
-            }
-            if (obj == null) {
+            if (input == null) {
                 return 'null';
-            } else if (Array.isArray(obj)) {
+            } else if (Array.isArray(input)) {
                 return 'array';
             } else {
                 return 'object';

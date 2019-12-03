@@ -71,19 +71,15 @@ QuestalResponse {
 ]
 ```
 
-To set more customized options grab a new instance of the proper object
+To set more customized options grab a new instance of the object
 ```javascript
 const q = new Questal();
-
-//get request using Questal instance
-let get = q.get({url:'/path/to/dest', success: (data, event) => console.log(data) });
-get.send();
 
 //post request using questal instance
 let post = q.post(
     {
         url:'/data',
-        success: function(data) { // see Example ('./example') for full details
+        success: function(data) {
             let table = document.getElementById('table');
             let rows = data.json.join('');
             table.innerHTML = rows;
@@ -106,4 +102,21 @@ post.on('responseHeaders', () => { // when readystate == 2
 //after setup, send request
 post.send();
 ```
-*note*: In beta, watch for updates
+
+```javascript
+//get request using Questal instance
+let get = q.get({url:'/path/to/dest', success: (data, event) => console.log(data) });
+
+// Turn the results of the request into its own file using Questal.prototype.put
+get.on('success', (res) => {
+    q.put('/data/data2.json', {file: res.text});
+});
+
+get.send();
+
+//add an event handler to delete the new file
+document.getElementById('btn').addEventListener('click', function() {
+    q.delete('/data/data2.json', res => (alert(res.text)));
+});
+```
+*note*: See Questal at work in ***example*** directory

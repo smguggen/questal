@@ -4,12 +4,9 @@ class QuestalUtil {
         if (input instanceof RegExp) {
             return 'regex';
         } else if (typeof input === 'object') {
-            if (typeof obj !== 'object') {
-                return false;
-            }
-            if (obj == null) {
+            if (input == null) {
                 return 'null';
-            } else if (Array.isArray(obj)) {
+            } else if (Array.isArray(input)) {
                 return 'array';
             } else {
                 return 'object';
@@ -149,10 +146,9 @@ class QuestalData {
     parseParamsToString(obj, withMark) {
         obj = obj || {};
         let data = withMark ? '?' : '';
-        let str = Object.keys(obj).reduce((acc, param) => {
-            acc += encodeURIComponent(params) + '=' + encodeURIComponent(obj[param]);
-            return acc;
-        }, '').join('&');
+        let str = Object.keys(obj).map((param) => {
+            return encodeURIComponent(param) + '=' + encodeURIComponent(obj[param]);
+        }).join('&');
         return data + str;
     }
 }
@@ -235,12 +231,12 @@ class QuestalHeaders {
                 if (!this.isForbidden(key)) {
                     this.settings.setRequestHeader(key, value);
                 }
-                if (this.accept) {
-                    this.settings.setRequestHeader('Accept', this.accept);
-                }
-                if (this.encoding) {
-                    this.settings.setRequestHeader('Content-Type', this.encoding);
-                }
+            }
+            if (this.accept) {
+                this.settings.setRequestHeader('Accept', this.accept);
+            }
+            if (this.encoding) {
+                this.settings.setRequestHeader('Content-Type', this.encoding);
             }
         }
         return this;
@@ -345,6 +341,19 @@ class QuestalResponse {
             return this.headers;
         }
     }
+    
+    get text() {
+         if (this.hasBody) {
+            let res = this.json;
+            try {
+                return JSON.stringify(res);
+            } catch(e) {
+                return res.toString();
+            }
+         } else {
+             return '';
+         }
+    }
 
     get json() {
         if (this.hasBody) {
@@ -359,6 +368,7 @@ class QuestalResponse {
             return [];
         }
     }
+    
 
     get xml() {
         if (this.hasBody) {
@@ -380,7 +390,11 @@ class QuestalResponse {
         if (this.types.includes(type) && this.settings.readyState < 2) {
                 this.settings.responseType = type;
         } else {
-            console.assert(false, 'Can\'t set ' + type + '. Headers already sent');
+            if (!this.types.includes(type)) {
+                console.error(`Type ${type} is not a valid response type`);
+            } else {
+                console.error('Can\'t set ' + type + '. Headers already sent');
+            }
         }
     }
     get type() {
@@ -427,6 +441,9 @@ class QuestalRequest {
     }
 
     get success() {
+        if (!this.state == 'complete') {
+            return false;
+        }
         if (this._success && typeof this._success === 'function') {
             return this._success(this.response.code);
         } else {
@@ -435,6 +452,7 @@ class QuestalRequest {
     }
 
     set method(m) {
+        m = m || '';
         this._method = m;
     }
     get method() {
@@ -442,7 +460,7 @@ class QuestalRequest {
     }
 
     set url(url) {
-        url =  url || '';
+        url =  url || '/';
         let urls = url.split('?');
         this._url = urls[0];
         if (urls.length > 1) {
@@ -451,11 +469,7 @@ class QuestalRequest {
     }
 
     get url() {
-        if (this.method == 'get' && this.data.params) {
-            return this._url + '?' + this.data.params;
-        } else {
-            return this._url;
-        }
+        return this._url || '/';
     }
 
     get state() {
@@ -492,7 +506,8 @@ class QuestalRequest {
 
     open(url, data) {
         this._presend(url, data);
-        this.settings.open(this.method, this.url);
+        let sendMethod = this.method.toUpperCase();
+        this.settings.open(sendMethod, this.url);
         // ready event fires
         return this;
     }
@@ -542,7 +557,7 @@ class QuestalRequest {
             switch($this.state) {
                 case 'ready': $this.events.fire('ready');
                 break;
-                case 'responseHeaders': $this.events.fire('responseHeaders', $this.headers);
+                case 'responseHeaders': $this.events.fire('responseHeaders', $this.response.headers);
                 break;
                 case 'loadStart': $this.events.fire('loadStart');
                 break;
@@ -602,6 +617,7 @@ class QuestalRequest {
         if (data) {
             this.data.params = data;
         }
+
         this.events.fire('init');
         if (!this.method) {
             throw new Error('Request method is empty');
@@ -625,6 +641,23 @@ class QuestalGet extends QuestalRequest {
     }
     set method(m) {
 
+    }
+
+    set url(url) {
+        url =  url || '/';
+        let urls = url.split('?');
+        this._url = urls[0];
+        if (urls.length > 1) {
+            this.data.params = urls[1];
+        }
+    }
+
+    get url() {
+        if (this.data.params) {
+            return this._url + '?' + this.data.params;
+        } else {
+            return this._url;
+        }
     }
 
     open() {
@@ -680,6 +713,52 @@ class QuestalPost extends QuestalRequest {
 
 }
 
+class QuestalDelete extends QuestalRequest {
+    constructor(options) {
+        super(options);
+    }
+
+    get method() {
+        return 'delete';
+    }
+    set method(m) {
+
+    }
+
+    set url(url) {
+        url =  url || '/';
+        let urls = url.split('?');
+        this._url = urls[0];
+        if (urls.length > 1) {
+            this.data.params = urls[1];
+        }
+    }
+
+    get url() {
+        if (this.data.params) {
+            return this._url + '?' + this.data.params;
+        } else {
+            return this._url;
+        }
+    }
+
+    open() {
+        return null;
+    }
+
+    send(url, data) {
+        super.open(url, data)
+        super.send();
+    }
+
+    _onReady(options) {
+        let $this = this;
+        this.on('ready', () => {
+            $this.headers.init();
+        });
+    }
+}
+
 class Questal {
 
     request(method, options) {
@@ -703,10 +782,15 @@ class Questal {
         return new QuestalPost(options);
     }
 
+    static Request() {
+        return new QuestalRequest();
+    }
+
     static Get(url, data, onSuccess, onError) {
         if (typeof data === 'function') {
             onSuccess = data;
             onError = onSuccess;
+            data = {};
         }
         let req = new QuestalGet({
             success:onSuccess,
@@ -726,6 +810,55 @@ class Questal {
             error:onError
         });
         return req.send(url, data);
+    }
+
+    _processOptions(options, key) {
+        key = key || 'success';
+        options = options || {};
+        if (typeof options === 'function') {
+           options[key] = options;
+        }
+        return options;
+    }
+}
+
+Questal.prototype.put = function(url, data, options, delayRequest) {
+    options = this._processOptions(options);
+    let req = this.request('put', options);
+    if (delayRequest) {
+        return req;
+    }
+    return req.open(url, data).send(req.data.params);
+}
+
+Questal.prototype.patch = function(url, data, options, delayRequest) {
+    options = this._processOptions(options);
+    let req = this.request('patch', options);
+    if (delayRequest) {
+        return req;
+    }
+    return req.open(url, data).send(req.data.params);
+}
+
+Questal.prototype.head = function(url, options, delayRequest) {
+    options = this._processOptions(options, 'responseHeaders');
+    let req = this.request('head', options);
+    if (delayRequest) {
+        return req;
+    }
+    return req.open(url).send();
+}
+
+Questal.prototype.delete = function(url, options, delayRequest) {
+    options = this._processOptions(options);
+    let req = new QuestalDelete(options);
+    if (delayRequest) {
+        return req;
+    }
+    if (options.data) {
+        return req.send(url, data);
+    } else {
+        return req.send(url);
     }
 }
 
