@@ -76,12 +76,12 @@ class QuestalHeaders {
                 if (!this.isForbidden(key)) {
                     this.settings.setRequestHeader(key, value);
                 }
-                if (this.accept) {
-                    this.settings.setRequestHeader('Accept', this.accept);
-                }
-                if (this.encoding) {
-                    this.settings.setRequestHeader('Content-Type', this.encoding);
-                }
+            }
+            if (this.accept) {
+                this.settings.setRequestHeader('Accept', this.accept);
+            }
+            if (this.encoding) {
+                this.settings.setRequestHeader('Content-Type', this.encoding);
             }
         }
         return this;
