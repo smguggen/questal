@@ -1,7 +1,7 @@
 {
   "name": "questal",
-  "version": "0.1.9",
-  "description": "A lightweight wrapper for making HTTP requests",
+  "version": "1.0.1",
+  "description": "A lightweight wrapper for making HTTP requests using Javascript",
   "main": "index.js",
   "scripts": {
     "build": "node config/build.js"
