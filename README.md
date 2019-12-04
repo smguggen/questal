@@ -36,7 +36,7 @@ The data parameter passed to the 'on success' callback is a Questal Response obj
 ```javascript
 QuestalResponse {
     defaultType: "text",
-    sender: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 60000, withCredentials: false, upload: XMLHttpRequestUpload, …},
+    settings: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 60000, withCredentials: false, upload: XMLHttpRequestUpload, …},
     types: (5) ["arraybuffer", "blob", "document", "text", "json"],
     code: {…},
     data: {…},
