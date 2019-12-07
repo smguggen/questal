@@ -8,9 +8,12 @@ module.exports = {
                 console.error(err);
             } else {
                 let newData = JSON.parse(data)[0].names.map((row) => {
-                    return `<tr><td>${row.id}.</td><td>${row.first} ${row.last}</td></tr>`;
-                })
-                res.json(newData);
+                    return {
+                        id: row.id,
+                        name: `${row.first} ${row.last}`
+                    }
+                });
+                res.send(newData);
             }
         })
     }

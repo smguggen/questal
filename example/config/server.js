@@ -56,6 +56,6 @@ app.delete('/*', function(req, res) {
     }
 });
 
-app.use(server.static('.'));
+app.use(server.static('dist'));
 
 app.listen(8080)

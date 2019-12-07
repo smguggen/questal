@@ -4,13 +4,13 @@
   "description": "A lightweight wrapper for making HTTP requests",
   "main": "index.js",
   "scripts": {
-    "dev": "node config/build.js development",
-    "build": "node config/build.js production",
+    "build-questal": "node ../config/build.js development",
+    "build": "webpack",
     "start": "node config/server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smguggen/questal.git.git"
+    "url": "git+https://github.com/smguggen/questal.git"
   },
   "author": "",
   "license": "MIT",
@@ -19,8 +19,25 @@
   },
   "homepage": "https://github.com/smguggen/questal.git#readme",
   "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-react": "^7.6.3",
+    "babel-cli": "^6.26.0",
+    "babel-loader": "^8.0.6",
+    "babel-preset-react-app": "^3.1.2",
+    "css-loader": "^3.2.0",
+    "file-loader": "^4.2.0",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.8.0",
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
     "express": "^4.17.1",
     "node": "^12.13.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
     "terser": "^4.4.0"
   }
 }

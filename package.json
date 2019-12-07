@@ -1,6 +1,6 @@
 {
   "name": "questal",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A lightweight wrapper for making HTTP requests using Javascript",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smguggen/questal.git.git"
+    "url": "git+https://github.com/smguggen/questal.git"
   },
   "keywords": ["javascript", "post", "get", "request", "xmlhttprequest", "json", "lightweight"],
   "author": "Steven Guggenheimer",
