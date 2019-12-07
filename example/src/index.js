@@ -21,7 +21,7 @@ let post = q.post(
         success: function(data) {
             console.log(this);
             rows = data.json;
-            load();
+            onReady();
         }
 });
 
@@ -49,13 +49,11 @@ get.send();
 //add an event handler to delete the new file
 let clickEvent = () => q.delete('/data/data2.json', res => alert(res.text));
 
-function load() {
-ReactDOM.render(<Components.App>
-    <Components.Button id="deleteBtn" clickEvent={clickEvent}>Delete</Components.Button>
-    <Components.Table id="table" rows={rows} />
-    <Components.Module src="index.js"/>
-</Components.App>, document.getElementById('container'));
-
+function onReady() {
+    ReactDOM.render(<Components.App>
+        <Components.Button id="deleteBtn" clickEvent={clickEvent}>Delete</Components.Button>
+        <Components.Table id="table" rows={rows} />
+        <Components.Module src="index.js"/>
+    </Components.App>, document.getElementById('container'));
 }
-
 
