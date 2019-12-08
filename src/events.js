@@ -25,6 +25,15 @@ class QuestalEvents {
     }
 
     fire(event, detail, options) {
+        if (this.customExists) {
+            this._fireCustom(event, detail, options);
+        } else {
+            console.warning("Event Details not available in this browser.")
+           this.target.dispatchEvent(event);
+        }
+    }
+
+    _fireCustom(event, detail, options) {
         options = options || {};
         this.target.dispatchEvent(new CustomEvent(event, {
             bubbles: options.bubbles || false,
