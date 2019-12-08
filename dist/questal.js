@@ -61,6 +61,7 @@ class QuestalEvents {
     constructor(target, caller) {
         this.target = target;
         this.caller = caller || target;
+        this.customExists = typeof CustomEvent != 'undefined';
     }
 
     on(event, callback) {
@@ -84,6 +85,15 @@ class QuestalEvents {
     }
 
     fire(event, detail, options) {
+        if (this.customExists) {
+            this._fireCustom(event, detail, options);
+        } else {
+            console.warning("Event Details not available in this browser.")
+           this.target.dispatchEvent(event);
+        }
+    }
+
+    _fireCustom(event, detail, options) {
         options = options || {};
         this.target.dispatchEvent(new CustomEvent(event, {
             bubbles: options.bubbles || false,
@@ -341,7 +351,7 @@ class QuestalResponse {
             return this.headers;
         }
     }
-    
+
     get text() {
          if (this.hasBody) {
             let res = this.json;
@@ -368,7 +378,6 @@ class QuestalResponse {
             return [];
         }
     }
-    
 
     get xml() {
         if (this.hasBody) {
@@ -617,7 +626,6 @@ class QuestalRequest {
         if (data) {
             this.data.params = data;
         }
-
         this.events.fire('init');
         if (!this.method) {
             throw new Error('Request method is empty');
