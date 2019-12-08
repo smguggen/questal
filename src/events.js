@@ -2,6 +2,7 @@ class QuestalEvents {
     constructor(target, caller) {
         this.target = target;
         this.caller = caller || target;
+        this.customExists = typeof CustomEvent != 'undefined';
     }
 
     on(event, callback) {
