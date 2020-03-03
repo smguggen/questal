@@ -88,7 +88,7 @@ class QuestalEvents {
         if (this.customExists) {
             this._fireCustom(event, detail, options);
         } else {
-            console.warning("Event Details not available in this browser.")
+            console.warn("Event Details not available in this browser.")
            this.target.dispatchEvent(event);
         }
     }

@@ -1,8 +1,3 @@
-const QuestalHeaders = require('../src/headers.js');
-const QuestalResponse = require('../src/response.js');
-const QuestalData = require('../src/data.js');
-const QuestalEvents = require('../src/events.js');
-
 class QuestalRequest {
     constructor(options, omitBody) {
         this.options = options || {};
@@ -207,7 +202,4 @@ class QuestalRequest {
             return true;
         }
     }
-
 }
-
-module.exports = QuestalRequest;

@@ -1,5 +1,3 @@
-const QuestalRequest = require('./request.js');
-
 class QuestalPost extends QuestalRequest {
     constructor(options) {
         super(options);
@@ -31,7 +29,5 @@ class QuestalPost extends QuestalRequest {
             $this.headers.init();
         });
     }
-
 }
 
-module.exports = QuestalPost;

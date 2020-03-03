@@ -1,5 +1,3 @@
-const { QuestalGet, QuestalPost, QuestalDelete } = require('./dist/questal');
-
 class Questal {
 
     request(method, options) {
@@ -103,4 +101,3 @@ Questal.prototype.delete = function(url, options, delayRequest) {
     }
 }
 
-module.exports = Questal;

@@ -1,14 +1,11 @@
 
-const QuestalRequest = require('./request.js');
-
-class QuestalGet extends QuestalRequest {
+class QuestalDelete extends QuestalRequest {
     constructor(options) {
         super(options);
-        this.success = this.response.success304;
     }
 
     get method() {
-        return 'get';
+        return 'delete';
     }
     set method(m) {
 
@@ -43,11 +40,7 @@ class QuestalGet extends QuestalRequest {
     _onReady(options) {
         let $this = this;
         this.on('ready', () => {
-            let type = options.accept || ['plain', 'xml', 'html'];
-            $this.headers.accept = type;
             $this.headers.init();
         });
     }
 }
-
-module.exports = QuestalGet;
