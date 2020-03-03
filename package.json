@@ -10,7 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/smguggen/questal.git.git"
   },
-  "keywords": ["javascript", "post", "get", "request", "xmlhttprequest", "json", "lightweight"],
+  "keywords": [
+    "javascript",
+    "post",
+    "get",
+    "request",
+    "xmlhttprequest",
+    "json",
+    "lightweight"
+  ],
   "author": "Steven Guggenheimer",
   "license": "MIT",
   "bugs": {
@@ -20,5 +28,8 @@
   "devDependencies": {
     "node": "^12.13.0",
     "terser": "^4.4.0"
+  },
+  "dependencies": {
+    "convene": "0.0.3"
   }
 }

@@ -1,3 +1,4 @@
+const QuestalRequest = require('./request');
 
 class QuestalDelete extends QuestalRequest {
     constructor(options) {
@@ -44,3 +45,5 @@ class QuestalDelete extends QuestalRequest {
         });
     }
 }
+
+module.exports = QuestalDelete;

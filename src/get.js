@@ -1,4 +1,4 @@
-
+const QuestalRequest = require('./request');
 class QuestalGet extends QuestalRequest {
     constructor(options) {
         super(options);
@@ -47,3 +47,5 @@ class QuestalGet extends QuestalRequest {
         });
     }
 }
+
+module.exports = QuestalGet;
