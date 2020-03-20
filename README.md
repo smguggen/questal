@@ -119,4 +119,3 @@ document.getElementById('btn').addEventListener('click', function() {
     q.delete('/data/data2.json', res => (alert(res.text)));
 });
 ```
-*note*: See Questal at work in ***example*** directory

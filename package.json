@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smguggen/questal.git.git"
+    "url": "git+https://github.com/smguggen/questal.git"
   },
   "keywords": [
     "javascript",
@@ -26,10 +26,8 @@
   },
   "homepage": "https://github.com/smguggen/questal.git#readme",
   "devDependencies": {
-    "node": "^12.13.0",
-    "terser": "^4.4.0"
-  },
-  "dependencies": {
-    "convene": "0.0.3"
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "convene": "0.0.94"
   }
 }
