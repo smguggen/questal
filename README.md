@@ -1,6 +1,6 @@
 # questal
 
-A lightweight wrapper for making HTTP requests.
+A lightweight wrapper for easily making DOM-based HTTP requests.
 
 Install
 -------
@@ -11,12 +11,6 @@ npm install questal
 Include
 -------
 
-#### Using node:
-```javascript
-const questal = require('questal');
-```
-
-#### In file:
 ```html
 <script type="text/javascript" src="/node_modules/dist/questal.min.js"></script>
 ```
