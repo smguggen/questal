@@ -1,6 +1,6 @@
 # questal
 
-A lightweight wrapper for easily making DOM-based HTTP requests.
+A lightweight wrapper for easily making HTTP requests.
 
 Install
 -------

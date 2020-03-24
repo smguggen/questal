@@ -28,6 +28,9 @@
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
-    "convene": "0.0.94"
+    "convene": "0.1.3"
+  },
+  "dependencies": {
+    "@srcer/events": "^2.1.3"
   }
 }

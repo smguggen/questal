@@ -1,4 +1,4 @@
-class SrcerCallback {
+export class SrcerCallback {
     constructor(index, callback, type) {
         if (typeof callback !== 'function') {
             callback = this.default;
@@ -73,7 +73,8 @@ class SrcerCallback {
         return arg;
     }
 }
-class SrcerEvent {
+
+export class SrcerEvent {
     constructor(name) {
         if (!name) {
             throw new Error('Event name is required');
@@ -247,7 +248,8 @@ class SrcerEvent {
         return this.__queue || {};
     }
 }
-class SrcerEvents {
+
+export class SrcerEvents {
     constructor(caller) {
         caller = caller || this;
         this.setCaller(caller);
@@ -406,7 +408,8 @@ class SrcerEvents {
         return new SrcerEvents();
     }
 }
-class QuestalEvents extends SrcerEvents {
+
+export class QuestalEvents extends SrcerEvents {
     constructor(target, caller) {
         super(caller || target);
         this.target = target;
@@ -460,7 +463,8 @@ class QuestalEvents extends SrcerEvents {
         return this._customEventPolyfill()
     }
 }
-class QuestalUtil {
+
+export class QuestalUtil {
 
     static getType(input) {
         if (input instanceof RegExp) {
@@ -518,7 +522,8 @@ class QuestalUtil {
         return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }
-class QuestalData {
+
+export class QuestalData {
 
     set data(data) {
         this.setData(data);
@@ -576,7 +581,8 @@ class QuestalData {
         return data + str;
     }
 }
-class QuestalHeaders {
+
+export class QuestalHeaders {
     constructor(request) {
         this.settings = request;
         this.headers = {};
@@ -704,7 +710,8 @@ class QuestalHeaders {
         }
     }
 }
-class QuestalResponse {
+
+export class QuestalResponse {
     constructor(request, omitBody) {
         this.hasBody = !omitBody;
         this.settings = request;
@@ -842,7 +849,8 @@ class QuestalResponse {
         return code >= 200 && (code < 300 || code == 304);
     }
 }
-class QuestalRequest {
+
+export class QuestalRequest {
     constructor(options, omitBody) {
         this.options = options || {};
         this.settings = new XMLHttpRequest();
@@ -1047,7 +1055,8 @@ class QuestalRequest {
         }
     }
 }
-class QuestalGet extends QuestalRequest {
+
+export class QuestalGet extends QuestalRequest {
     constructor(options) {
         super(options);
         this.success = this.response.success304;
@@ -1095,7 +1104,8 @@ class QuestalGet extends QuestalRequest {
         });
     }
 }
-class QuestalPost extends QuestalRequest {
+
+export class QuestalPost extends QuestalRequest {
     constructor(options) {
         super(options);
         this.success = this.response.success304;
@@ -1127,7 +1137,8 @@ class QuestalPost extends QuestalRequest {
         });
     }
 }
-class QuestalDelete extends QuestalRequest {
+
+export class QuestalDelete extends QuestalRequest {
     constructor(options) {
         super(options);
     }
@@ -1172,7 +1183,8 @@ class QuestalDelete extends QuestalRequest {
         });
     }
 }
-class Questal {
+
+export class Questal {
     
     request(method, options) {
         method = method ? method.toLowerCase() : null
@@ -1316,3 +1328,4 @@ class Questal {
         return null;
     }
 }
+

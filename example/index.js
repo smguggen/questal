@@ -1,4 +1,4 @@
-import Questal from './questal.js';
+import { Questal } from './dist/questal.module.js';
 
 //static get request
 Questal.Get('/data', function(data, event) {console.log(data.json)});
