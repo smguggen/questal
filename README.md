@@ -1,5 +1,7 @@
 # questal
 
+![Downloads](https://img.shields.io/npm/dt/questal)
+
 A lightweight wrapper for easily making HTTP requests.
 
 Install
