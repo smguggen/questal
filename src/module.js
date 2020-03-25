@@ -26,7 +26,6 @@ class QuestalModule extends QuestalRequest {
         this.settings.headers = this.headers.settings;
         this.events.fire('ready');
         this.request = this.protocol.request(this.url, this.settings, response => {
-            $this.response.integrate(response);
             $this.events.fire('responseHeaders', response.headers);
             response.setEncoding($this.headers.encoding || 'utf8');
             
@@ -36,20 +35,23 @@ class QuestalModule extends QuestalRequest {
             });
             
             response.on('end', () => {
+                $this.response = new ModuleResponse(response, $this.chunks, $this.omitBody);
                if ($this.chunks) {
-                   $this.events.fire('success', $this.chunks);
+                   $this.events.fire('success', $this.response);
                } 
-               $this.events.fire('complete');
+               $this.events.fire('complete', $this.response);
             });
         });
+        if (this.settings.timeout) {
+            this.request.setTimeout(this.settings.timeout, () => {
+               $this.events.fire('timeout'); 
+            });
+        }
         this.request.on('error', (err) => {
             $this.events.fire('error', err);
         });
         this.request.on('abort', () => {
            $this.events.fire('abort'); 
-        });
-        this.request.on('timeout', () => {
-           $this.events.fire('timeout'); 
         });
         this.request.on('information', info => {
            $this.events.fire('progress', info); 
@@ -59,7 +61,10 @@ class QuestalModule extends QuestalRequest {
     
     send(body) {
         if (body) {
-            this.request.write(body);
+            let data;
+            do {
+                data = this.request.write(body)
+            } while (data);
         }
         this.request.end();
     }
@@ -97,9 +102,10 @@ class QuestalModule extends QuestalRequest {
     
     _init(options, omitBody) {
         this.options = options || {};
+        this.omitBody = omitBody;
         this.events = new QuestalEvents(this);
         //TODO - fix this
-        this.response = new ModuleResponse(this.settings, omitBody);
+        this.response = {};
         this.headers = new ModuleHeaders(this.options.headers || {});
         this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
         this.data = new QuestalData();
