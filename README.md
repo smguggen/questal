@@ -4,7 +4,7 @@
 ![NPM Version](https://img.shields.io/npm/v/questal?style=plastic)
 ![Size](https://img.shields.io/bundlephobia/min/questal?style=plastic)
 
-A lightweight wrapper for easily making HTTP requests.
+A lightweight javascript library for making HTTP requests.
 
 Install
 -------
