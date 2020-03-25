@@ -6,3 +6,5 @@ bower_components
 .history
 .DS_Store
 dist
+test/dist
+test/data/data2.json

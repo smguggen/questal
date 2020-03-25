@@ -1,3 +1,4 @@
+.github
 .vscode
 node_modules
 bower_components
@@ -6,3 +7,4 @@ bower_components
 .DS_Store
 example/
 _*.*
+test/data/data2.json
