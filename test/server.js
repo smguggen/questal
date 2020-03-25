@@ -9,7 +9,7 @@ app.use(server.urlencoded({ extended: true }));
 app.post('/*', function(req, res, next) {
     let file = req.path.replace('/', '');
     let method = req.params && req.params.method ? req.params.method : 'index';
-    let filePath = require(path.resolve(__dirname, `../controllers/${file}.js`));
+    let filePath = require(path.resolve(__dirname, `./controllers/${file}.js`));
     req.use = filePath[method];
     next();
 });
@@ -19,7 +19,7 @@ app.post('/data', function(req, res) {
 });
 
 app.get('/data', function(req, res) {
-    fs.readFile(path.resolve(__dirname, '../data/data.json'), 'utf-8', (err, data) => {
+    fs.readFile(path.resolve(__dirname, './data/data.json'), 'utf-8', (err, data) => {
         if (err) {
             console.error(err);
         } else {
@@ -29,7 +29,7 @@ app.get('/data', function(req, res) {
 });
 
 app.put('/*', function(req, res) {
-    let file = path.join('.', req.path);
+    let file = path.join('./test', req.path);
     fs.writeFile(file, req.body.file, (err) => {
         if (err) {
             console.error(err);
@@ -41,7 +41,7 @@ app.put('/*', function(req, res) {
 });
 
 app.delete('/*', function(req, res) {
-    let file = path.join('.', req.path);
+    let file = path.join('./test', req.path);
     if (fs.existsSync(file)) {
         fs.unlink(file, (err) => {
             if (err) {
@@ -56,6 +56,6 @@ app.delete('/*', function(req, res) {
     }
 });
 
-app.use(server.static('.'));
+app.use(server.static('./test'));
 
 app.listen(8080)

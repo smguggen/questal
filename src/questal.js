@@ -1,9 +1,10 @@
-const QuestalRequest = require('./request');
+const QuestalUtil = require('../lib/util');
+const QuestalRequest = QuestalUtil.Request
 const QuestalGet = require('./get');
 const QuestalPost = require('./post');
 const QuestalDelete = require('./delete');
 class Questal {
-    
+
     request(method, options) {
         method = method ? method.toLowerCase() : null
         if (method == 'get') {
@@ -66,7 +67,7 @@ class Questal {
     }
 
     static Request() {
-        return new QuestalRequest();
+        return QuestalRequest();
     }
 
     static Get(url, data, onSuccess, onError) {

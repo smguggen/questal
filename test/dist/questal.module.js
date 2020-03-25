@@ -73,6 +73,7 @@ class SrcerCallback {
         return arg;
     }
 }
+
 class SrcerEvent {
     constructor(name) {
         if (!name) {
@@ -247,6 +248,7 @@ class SrcerEvent {
         return this.__queue || {};
     }
 }
+
 class SrcerEvents {
     constructor(caller) {
         caller = caller || this;
@@ -406,9 +408,9 @@ class SrcerEvents {
         return new SrcerEvents();
     }
 }
-class QuestalEvents extends SrcerEvents {
+
+class QuestalEvents {
     constructor(target, caller) {
-        super(caller || target);
         this.target = target;
         this.caller = caller || target;
     }
@@ -460,8 +462,21 @@ class QuestalEvents extends SrcerEvents {
         return this._customEventPolyfill()
     }
 }
-class QuestalUtil {
 
+class QuestalUtil {
+    
+    static get Request() {
+        let Request;
+        if (typeof exports === 'object' && typeof module !== 'undefined' && typeof QuestalModule === 'function') {
+            Request = QuestalModule;
+        } else if (typeof XMLHttpRequest === 'function') {
+            Request = QuestalRequest;
+        } else {
+            throw new Error('Questal is not supported in this environment');
+        }
+        return Request;
+    }
+    
     static getType(input) {
         if (input instanceof RegExp) {
             return 'regex';
@@ -518,6 +533,7 @@ class QuestalUtil {
         return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }
+
 class QuestalData {
 
     set data(data) {
@@ -576,6 +592,7 @@ class QuestalData {
         return data + str;
     }
 }
+
 class QuestalHeaders {
     constructor(request) {
         this.settings = request;
@@ -704,6 +721,35 @@ class QuestalHeaders {
         }
     }
 }
+
+class ModuleHeaders extends QuestalHeaders {
+    constructor(options) {
+        super(options);
+    }
+    
+    sendable() {
+        return true;
+    }
+    
+    init() {
+        let keys = Object.keys(this.headers);
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+            let value = this.headers[key];
+            if (!this.isForbidden(key)) {
+                this.settings[key] = value;
+            }
+        }
+        if (this.accept) {
+            this.settings['Accept'] = this.accept;
+        }
+        if (this.encoding) {
+            this.settings['Content-Type'] = this.encoding;
+        }
+        return this;
+    }
+}
+
 class QuestalResponse {
     constructor(request, omitBody) {
         this.hasBody = !omitBody;
@@ -842,16 +888,10 @@ class QuestalResponse {
         return code >= 200 && (code < 300 || code == 304);
     }
 }
+
 class QuestalRequest {
     constructor(options, omitBody) {
-        this.options = options || {};
-        this.settings = new XMLHttpRequest();
-        this.headers = new QuestalHeaders(this.settings);
-        this.response = new QuestalResponse(this.settings, omitBody);
-        this.events = new QuestalEvents(this.settings, this);
-        this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
-        this.data = new QuestalData();
-        this._init();
+        this._init(options, omitBody);
     }
 
     set success(fn) {
@@ -991,8 +1031,15 @@ class QuestalRequest {
         });
     }
 
-    _init() {
+    _init(options, omitBody) {
         let $this = this;
+        this.options = options || {};
+        this.settings = new XMLHttpRequest();
+        this.headers = new QuestalHeaders(this.settings);
+        this.response = new QuestalResponse(this.settings, omitBody);
+        this.events = new QuestalEvents(this.settings, this);
+        this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
+        this.data = new QuestalData();
         this.url = this.options.url;
         this.method = this.options.method || 'get';
         this.data.params = this.options.data || this.options.params;
@@ -1029,7 +1076,8 @@ class QuestalRequest {
             }
         }
     }
-
+    
+    
     _presend(url, data) {
         if (url) {
             this.url = url;
@@ -1047,6 +1095,145 @@ class QuestalRequest {
         }
     }
 }
+
+class QuestalModule extends QuestalRequest {
+    constructor(options, omitBody) {
+        super(options, omitBody);
+        this.state = 'unsent';
+        this.chunks = '';
+    }
+
+    open() {
+        let $this = this;
+        this._presend(url, data);
+        let sendMethod = this.method.toUpperCase();
+        this.settings.method = sendMethod;
+        this.settings.headers = this.headers.settings;
+        this.events.fire('ready');
+        this.request = this.protocol.request(this.url, this.settings, response => {
+            $this.response = response;
+            $this.events.fire('responseHeaders', response.headers);
+            response.setEncoding($this.headers.encoding || 'utf8');
+            
+            response.on('data', chunk => {
+               $this.events.fire('loadStart', chunk); 
+               $this.chunks += chunk;
+            });
+            
+            response.on('end', () => {
+               if ($this.chunks) {
+                   $this.events.fire('success', $this.chunks);
+               } 
+               $this.events.fire('complete');
+            });
+        });
+        this.request.on('error', (err) => {
+            $this.events.fire('error', err);
+        });
+        this.request.on('abort', () => {
+           $this.events.fire('abort'); 
+        });
+        this.request.on('timeout', () => {
+           $this.events.fire('timeout'); 
+        });
+        this.request.on('information', info => {
+           $this.events.fire('progress', info); 
+        });
+        return this;
+    }  
+    
+    send(body) {
+        if (body) {
+            this.request.write(body);
+        }
+        this.request.end();
+    }
+    
+    set state(st) {
+        if (['unsent', 'ready', 'responseHeaders', 'loadStart', 'complete'].includes(st)) {
+            this._state = st;
+        }
+    }
+    
+    get state() {
+      return this._state || 'unsent';   
+    }
+    
+    get protocol() {
+        if (!this.url) {
+            return null;
+        }
+        let protocol = url.parse(this.url).protocol;
+        if (protocol == 'http') {
+            return http;
+        }
+        return https;
+    }
+    
+    on(event, callback) {
+        return this.events.on(event, callback);
+    }
+    
+    off(event, callback) {
+        this.events.off(event, callback);
+    }
+    
+    onChange() {}
+    
+    _init() {
+        this.options = options || {};
+        this.events = new QuestalEvents(this);
+        this.headers = new ModuleHeaders(this.options.headers || {});
+        this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
+        this.data = new QuestalData();
+        this.url = this.options.url;
+        this.method = this.options.method || 'get';
+        this.data.params = this.options.data || this.options.params;
+        this.set('timeout', this.options.timeout || 60000);
+        this.onLoad();
+        this.onReady();
+        this.setOptions(this.options);
+    }
+
+    
+    _defaultEvents() {
+        this.on('error', ...errs => {
+           echo('red', ...errs);
+           process.exit(0);
+        });
+        this.on('ready', () => {
+           this.state = 'ready'; 
+           this.events.fire('change', 'ready');
+        });
+        this.on('responseHeaders', () => {
+            this.state = 'responseHeaders'; 
+            this.events.fire('change', 'responseHeaders');
+
+        });
+        this.on('loadStart', () => {
+            this.state = 'loadStart'; 
+            this.events.fire('change', 'loadStart');
+
+        });
+        this.on('complete', () => {
+            this.state = 'complete'; 
+            this.events.fire('change', 'complete');
+        });
+    }
+    
+    set settings(s) {
+        let oldOptions = this.options;
+        this.options = s;
+        if (!this.options || typeof this.options !== 'object' || Array.isArray(this.options)) {
+            this.options = oldOptions;
+        }
+    }
+    
+    get settings() {
+        return this.options;
+    }
+}
+
 class QuestalGet extends QuestalRequest {
     constructor(options) {
         super(options);
@@ -1095,6 +1282,7 @@ class QuestalGet extends QuestalRequest {
         });
     }
 }
+
 class QuestalPost extends QuestalRequest {
     constructor(options) {
         super(options);
@@ -1127,6 +1315,7 @@ class QuestalPost extends QuestalRequest {
         });
     }
 }
+
 class QuestalDelete extends QuestalRequest {
     constructor(options) {
         super(options);
@@ -1172,8 +1361,9 @@ class QuestalDelete extends QuestalRequest {
         });
     }
 }
+
 class Questal {
-    
+
     request(method, options) {
         method = method ? method.toLowerCase() : null
         if (method == 'get') {
@@ -1236,7 +1426,7 @@ class Questal {
     }
 
     static Request() {
-        return new QuestalRequest();
+        return QuestalRequest();
     }
 
     static Get(url, data, onSuccess, onError) {
@@ -1316,3 +1506,5 @@ class Questal {
         return null;
     }
 }
+
+export default Questal;

@@ -1,18 +1,11 @@
-const QuestalHeaders = require('../lib/headers');
+const QuestalHeaders = require('../lib/module-headers');
 const QuestalResponse = require('../lib/response');
-const QuestalEvents = require('../lib/events');
+const QuestalEvents = require('@srcer/events');
 const QuestalData = require('../lib/data');
 
 class QuestalRequest {
     constructor(options, omitBody) {
-        this.options = options || {};
-        this.settings = new XMLHttpRequest();
-        this.headers = new QuestalHeaders(this.settings);
-        this.response = new QuestalResponse(this.settings, omitBody);
-        this.events = new QuestalEvents(this.settings, this);
-        this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
-        this.data = new QuestalData();
-        this._init();
+        this._init(options, omitBody);
     }
 
     set success(fn) {
@@ -152,8 +145,15 @@ class QuestalRequest {
         });
     }
 
-    _init() {
+    _init(options, omitBody) {
         let $this = this;
+        this.options = options || {};
+        this.settings = new XMLHttpRequest();
+        this.headers = new QuestalHeaders(this.settings);
+        this.response = new QuestalResponse(this.settings, omitBody);
+        this.events = new QuestalEvents(this.settings, this);
+        this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
+        this.data = new QuestalData();
         this.url = this.options.url;
         this.method = this.options.method || 'get';
         this.data.params = this.options.data || this.options.params;
@@ -190,7 +190,8 @@ class QuestalRequest {
             }
         }
     }
-
+    
+    
     _presend(url, data) {
         if (url) {
             this.url = url;

@@ -1,414 +1,5 @@
-class SrcerCallback {
-    constructor(index, callback, type) {
-        if (typeof callback !== 'function') {
-            callback = this.default;
-        }
-        this.index = index;
-        this.active = true;
-        this.type = type;
-        this.function = callback;
-        let types = ['before', 'after', 'first', 'last', 'calc'];
-        types.forEach(t => {
-            Object.defineProperty(this, t, 
-                { get: function() { return this.type == t } }    
-            )
-        }, this);
-    }
-    
-    activate() {
-        this.active = true;
-        return this;
-    }
-    
-    deactivate() {
-        this.active = false;
-        return this;
-    }
-    
-    set function(fn) {
-        if (typeof fn === 'function') {
-            this._function = fn;
-        } 
-    }
-    
-    get function() {
-        return this._function || this.default;
-    }
-    
-    set type(o) {
-        if (!['first', 'before', 'after', 'last', 'calc'].includes(o)) {
-            this._type = 'any';
-        }    
-        this._type = o;
-    }
-    
-    get type() {
-        return this._type || 'any';
-    }
-    
-    get default() {
-        return this.type == 'calc' ? this._defaultCalc : this._default;
-    }
-    
-    get order() {
-        switch(this.type) {
-            case 'first': return 1;
-            break;
-            case 'before': return 2;
-            break;
-            case 'after': return 4;
-            break;
-            case 'last': return 5;
-            break;
-            default: return 3;
-            break;
-        }
-    }
-    
-    _default() {
-        
-    }
-    
-    _defaultCalc(arg) {
-        return arg;
-    }
-}
-class SrcerEvent {
-    constructor(name) {
-        if (!name) {
-            throw new Error('Event name is required');
-        }
-        if (typeof name !== 'string') {
-            throw new Error('Event name must be a string');
-        }
-        this.name = name;
-        this._queue = {}
-        this._calc = new SrcerCallback(name + '-0', null, 'calc');
-        this.hasCalc = false;
-        this._index = 0;
-        this.count = 0;
-        this.active = true;
-    }
-
-    get length() {
-        return Object.values(this._queue).length;
-    }
-
-    get index() {
-        this._index++;
-        return this.name + '-' + this._index;
-    }
-
-    get queue() {
-        return this.getCallbacks();
-    }
-
-    fire(caller, ...args) {
-        let q = this.queue;
-        this.count++;
-        q.forEach(cb => {
-            if (cb.active) {
-                cb.function.call(caller, ...args);
-            }
-        }, this);
-        return this;
-    }
-
-    calc(caller, ...args) {
-        this.count++;
-        if (this._calc.active) {
-            return this._calc.function.call(caller, ...args);
-        } else {
-            return args && args.length ? args[0] : null;
-        }
-    }
-
-    on(callback, option) {
-        let index = this.index;
-        if (option == 'first') {
-            let oldFirst = this.getCallback('first');
-            if (oldFirst) {
-                oldFirst.type = 'before';
-            }
-        } else if (option == 'last') {
-            let oldLast = this.getCallback('last');
-            if (oldLast) {
-                oldLast.type = 'after';
-            }
-        }
-        if (typeof callback === 'string') {
-            if (this._queue[callback] && this._queue[callback] instanceof SrcerCallback) {
-                this._queue[callback].activate();
-                return callback;
-            } else if (this._calc && this._calc.index == callback) {
-                this._calc.activate();
-                return callback;
-            }
-        }
-        let cb = new SrcerCallback(index, callback, option);
-        if (cb.calc) {
-            this.hasCalc = true;
-            this._calc = cb;
-        } else {
-            this._queue[index] = cb;
-        }
-        return index;
-    }
-
-    onCalc(callback) {
-        return this.on(callback, 'calc');
-    }
-
-    after(callback) {
-        return this.on(callback, 'after');
-    }
-
-    before(callback) {
-        return this.on(callback, 'before');
-    }
-
-    last(callback) {
-        return this.on(callback, 'last');
-    }
-
-    first(callback) {
-        return this.on(callback, 'last');
-    }
-
-    off(key) {
-        if (this._queue.hasOwnProperty(key)) {
-            this._queue[key].deactivate();
-        } else if (this._calc.index == key) {
-            this._calc.deactivate();
-        } else {
-            this.active = false;
-        }
-        return this;
-    }
-
-    reset() {
-        this._queue = {};
-        return this;
-    }
-
-    getCallbacks() {
-        let q = Object.values(this._queue);
-        q.sort((a, b) => {
-            if (a.order == b.order) {
-                return 0;
-            }
-            return a.order - b.order;
-        });
-        return q;
-    }
-
-    getCallback(key) {
-        let len = this.length;
-        if (!len) {
-            return null;
-        }
-        if (key == 'last') {
-            return this.queue[len - 1];
-        } else if (key == 'first') {
-            return this._queue[0];
-        }
-        return this._queue[key].function;
-    }
-
-    getCalc() {
-        return this._calc.function;
-    }
-    
-    set active(a) {
-        if (a) {
-            this._active = true;
-        } else {
-            this._active = false;
-            this.reset();
-        }
-    }
-    
-    get active() {
-        return this._active === false ? false : true;
-    }
-
-    set _queue(q) {
-        let oldQ = this.__queue || {};
-
-        this.__queue = q;
-
-        if (!this.__queue || typeof this.__queue !== 'object' || Array.isArray(this.__queue)) {
-            this.__queue = oldQ;
-        }
-
-    }
-
-    get _queue() {
-        return this.__queue || {};
-    }
-}
-class SrcerEvents {
-    constructor(caller) {
-        caller = caller || this;
-        this.setCaller(caller);
-        this._events = {}
-        this._index = 0;
-        let types = ['before', 'after', 'first', 'last', 'calc'];
-        types.forEach(type => {
-            let method = type == 'calc' ? 'onCalc' : type;
-            this[method] = this._updateTypes(type);
-        }, this);
-    }
-    
-    get length() {
-        return this.events.filter(ev => ev.active).length;
-    }
-    
-    get index() {
-        this._index++;
-        return 'ev-' + this._index;
-    }
-    
-    on(event, callback, option) {
-        if (option && typeof option === 'boolean') {
-            option = 'calc';
-        }
-        this.event = event;
-        return this.update(event, 'on', callback, option);
-     }
-     
-     off(event, key) {
-        this.update(event, 'off', key);
-        return this;
-     }
-     
-     fire(event, ...args) {
-        if (!this.exists(event)) {
-            this.event = event;
-            this.get(event).active = false;
-        }
-        this.update(event, 'fire', this.caller, ...args); 
-        return this;
-     }
-     
-     calc(event, ...args) {
-        if (!this.exists(event)) {
-            this.event = event;
-            this.get(event).active = false;
-        }
-        return this.update(event, 'calc', this.caller, ...args);
-     }
-    
-    set event(e) {
-        if (this.exists(e) && !this.isActive(e)) {
-            this._events[e].active = true;
-            return;
-        }
-        if (!this.exists(e)) {
-            this._events[e] = new SrcerEvent(e, this.caller);
-        }
-    }
-    
-    set events(e) {
-        if (!e) {
-            return;
-        }
-        if (Array.isArray(e)) {
-            e.forEach(name => {
-                this.event = name;
-            }, this);
-        } else if (typeof e === 'string') {
-            this.event = e;
-        }
-    }
-    
-    get events() {
-        return Object.keys(this._events) || [];
-    }
-    
-    get state() {
-        let $this = this;
-        return Object.keys(this._events).reduce((acc, e) =>{
-            let ev = $this._events[e];
-            if (ev.length || ev.hasCalc) {
-                acc[e] = ev;
-            }
-            return acc;
-        }, {});
-    }
-    
-    get(event) {
-        if (event && typeof event !== 'string' && event instanceof SrcerEvent) {
-            return event;
-        }
-        return this._events[event];
-    }
-    
-    count(event) {
-        if (this.exists(event)) {
-            return this.get(event).count;
-        }
-        return 0;
-    }
-    
-    setCaller(caller) {
-        if (!caller || 
-            (typeof caller !== 'function' &&
-            typeof caller != 'object')
-        ) {
-           caller = this; 
-        }
-        this.caller = caller;
-        return this;
-    }
-    
-    exists(ev) {
-        let e = this.get(ev);
-        return e && e instanceof SrcerEvent;
-    }
-    
-    isActive(ev) {
-        let e = this.get(ev);
-        return e && e instanceof SrcerEvent && e.active;
-    }
-    
-    reset(event) {
-        if (event) {
-            this.update(event, 'reset');
-        } else {
-            this.events.forEach(ev => {
-               this._events[ev].active = false; 
-            });
-        }
-        return this;
-    }
-    
-    update(event, callback, ...args) {
-        let ev = this.get(event);
-        let res = false;
-        if (ev instanceof SrcerEvent) {
-            if (typeof callback === 'string' && typeof ev[callback] === 'function') {
-                res = ev[callback].call(ev, ...args);
-            } else if (typeof callback === 'function') {
-                res = callback.call(this.caller, ev, ...args);
-            }   
-        }
-        return res;
-    }
-    
-    _updateTypes(type) {
-        return function(event, callback) {
-            return this.on(event, callback, type);
-        }
-    }
-    
-    static get instance() {
-        return new SrcerEvents();
-    }
-}
-class QuestalEvents extends SrcerEvents {
+class QuestalEvents {
     constructor(target, caller) {
-        super(caller || target);
         this.target = target;
         this.caller = caller || target;
     }
@@ -461,7 +52,19 @@ class QuestalEvents extends SrcerEvents {
     }
 }
 class QuestalUtil {
-
+    
+    static get Request() {
+        let Request;
+        if (typeof exports === 'object' && typeof module !== 'undefined' && typeof QuestalModule === 'function') {
+            Request = QuestalModule;
+        } else if (typeof XMLHttpRequest === 'function') {
+            Request = QuestalRequest;
+        } else {
+            throw new Error('Questal is not supported in this environment');
+        }
+        return Request;
+    }
+    
     static getType(input) {
         if (input instanceof RegExp) {
             return 'regex';
@@ -844,14 +447,7 @@ class QuestalResponse {
 }
 class QuestalRequest {
     constructor(options, omitBody) {
-        this.options = options || {};
-        this.settings = new XMLHttpRequest();
-        this.headers = new QuestalHeaders(this.settings);
-        this.response = new QuestalResponse(this.settings, omitBody);
-        this.events = new QuestalEvents(this.settings, this);
-        this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
-        this.data = new QuestalData();
-        this._init();
+        this._init(options, omitBody);
     }
 
     set success(fn) {
@@ -991,8 +587,15 @@ class QuestalRequest {
         });
     }
 
-    _init() {
+    _init(options, omitBody) {
         let $this = this;
+        this.options = options || {};
+        this.settings = new XMLHttpRequest();
+        this.headers = new QuestalHeaders(this.settings);
+        this.response = new QuestalResponse(this.settings, omitBody);
+        this.events = new QuestalEvents(this.settings, this);
+        this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
+        this.data = new QuestalData();
         this.url = this.options.url;
         this.method = this.options.method || 'get';
         this.data.params = this.options.data || this.options.params;
@@ -1029,7 +632,8 @@ class QuestalRequest {
             }
         }
     }
-
+    
+    
     _presend(url, data) {
         if (url) {
             this.url = url;
@@ -1173,7 +777,7 @@ class QuestalDelete extends QuestalRequest {
     }
 }
 class Questal {
-    
+
     request(method, options) {
         method = method ? method.toLowerCase() : null
         if (method == 'get') {
@@ -1236,7 +840,7 @@ class Questal {
     }
 
     static Request() {
-        return new QuestalRequest();
+        return QuestalRequest();
     }
 
     static Get(url, data, onSuccess, onError) {

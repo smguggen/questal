@@ -1,5 +1,5 @@
-import { Questal } from './dist/questal.module.js';
-
+import Questal from '../dist/questal.module.js';
+//console.log(Questal);
 //static get request
 Questal.Get('/data', function(data, event) {console.log(data.json)});
 
@@ -38,6 +38,7 @@ let get = q.get({url:'/data', success: function(data) { console.log(this, data.j
 
 get.on('success', (res) => {
     // Turn the results of the request into its own file using the put method
+    console.log(res);
     q.put('/data/data2.json', {file: res.text});
 });
 
