@@ -1,6 +1,7 @@
 # questal
 
-![Downloads](https://img.shields.io/npm/dt/questal)
+![Downloads](https://img.shields.io/npm/dt/questal?style=plastic)
+![NPM Version](https://img.shields.io/npm/v/questal?style=plastic)
 
 A lightweight wrapper for easily making HTTP requests.
 
