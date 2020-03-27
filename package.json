@@ -1,7 +1,7 @@
 {
   "name": "questal",
   "version": "2.1.1",
-  "description": "A lightweight wrapper for making HTTP requests using Javascript",
+  "description": "A lightweight javascript library for handling browser-based HTTP requests.",
   "main": "./index.js",
   "exports": {
     "import": "./index.mjs"
