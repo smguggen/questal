@@ -14,9 +14,19 @@ npm install questal
 
 Include
 -------
-
 ```html
+<!-- The old-fashioned way -->
 <script type="text/javascript" src="/node_modules/dist/questal.min.js"></script>
+
+<!-- By Es6 module -->
+<script type="module" src="/node_modules/dist/questal.es.js"></script>
+```
+```javascript
+// Using Webpack/Babel loader or similar
+import Questal from 'questal'
+
+// straight into your javascript file
+import Questal from '.node_modules/dist/questal.es.js';
 ```
 Basic Usage:
 -------------
