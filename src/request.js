@@ -1,6 +1,6 @@
-const QuestalHeaders = require('../lib/module-headers');
+const QuestalHeaders = require('../lib/headers');
 const QuestalResponse = require('../lib/response');
-const QuestalEvents = require('@srcer/events');
+const QuestalEvents = require('../lib/events');
 const QuestalData = require('../lib/data');
 
 class QuestalRequest {

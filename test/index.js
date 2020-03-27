@@ -1,4 +1,4 @@
-import Questal from '../dist/questal.module.js';
+import Questal from './dist/questal.es.js';
 //console.log(Questal);
 //static get request
 Questal.Get('/data', function(data, event) {console.log(data.json)});
@@ -32,7 +32,6 @@ post.on('responseHeaders', (headers) => { // when readystate == 2
 });
 
 post.send();
-
 
 let get = q.get({url:'/data', success: function(data) { console.log(this, data.json)} });
 

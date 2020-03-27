@@ -1,5 +1,4 @@
-const QuestalUtil = require('../lib/util');
-const QuestalRequest = QuestalUtil.Request
+const QuestalRequest = require('./request');
 const QuestalGet = require('./get');
 const QuestalPost = require('./post');
 const QuestalDelete = require('./delete');

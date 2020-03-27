@@ -1,5 +1,5 @@
-const QuestalUtil = require('../lib/util');
-const QuestalRequest = QuestalUtil.Request
+const QuestalRequest = require('./request');
+
 class QuestalGet extends QuestalRequest {
     constructor(options) {
         super(options);

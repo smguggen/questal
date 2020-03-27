@@ -9,7 +9,13 @@ convene.queue([ { lib: ['events', 'util', 'data', 'headers', 'response'], src: [
       }).code, true)
     .on('merged', convene.minify)
     .on('clear', () => {
-        convene.requeue([ '@srcer/events/src/callback', '@srcer/events/src/event', '@srcer/events', { lib: ['events', 'util', 'data', 'headers', 'module-headers', 'response', 'module-response'], src: ['request', 'module', 'get', 'post', 'delete', 'questal'] } ], 'require')
+        convene.requeue([ 
+            '@srcer/events/src/callback', 
+            '@srcer/events/src/event', 
+            '@srcer/events', 
+            { lib: ['events', 'util', 'data', 'headers', 'response'], 
+            src: ['request', 'get', 'post', 'delete', 'questal'] } 
+        ], 'require')
         .on('writing', data => {
             data = data + '\n\n'; 
             if (data.startsWith('class Questal {')) {
@@ -17,7 +23,7 @@ convene.queue([ { lib: ['events', 'util', 'data', 'headers', 'response'], src: [
             }
             return data;
         }, true)
-        .merge(process.cwd() + '/dist/questal.module.js', true)
+        .merge(process.cwd() + '/dist/questal.es.js', true)
     })
     .merge(process.cwd() + '/dist/questal.js', 'dist');
 

@@ -2,10 +2,9 @@
   "name": "questal",
   "version": "2.0.0",
   "description": "A lightweight wrapper for making HTTP requests using Javascript",
-  "type": "module",
   "main": "./index.js",
   "exports": {
-    "import": "./dist/questal.module.js"
+    "import": "./index.mjs"
   },
   "scripts": {
     "start": "node ./test/server.js",
@@ -36,8 +35,5 @@
     "@babel/preset-env": "^7.9.0",
     "convene": "0.1.3",
     "express": "^4.17.1"
-  },
-  "dependencies": {
-    "@srcer/events": "^2.1.3"
   }
 }
