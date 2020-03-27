@@ -1,6 +1,6 @@
 {
   "name": "questal",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A lightweight wrapper for making HTTP requests using Javascript",
   "main": "./index.js",
   "exports": {
