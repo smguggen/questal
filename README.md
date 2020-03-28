@@ -1,9 +1,10 @@
 # questal
 
+![Questal](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FApp/Questal%2Fblueviolet)
 ![![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FDownloads)](https://img.shields.io/npm/dt/questal?style=plastic)
 ![![Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FVersion)](https://img.shields.io/npm/v/questal?style=plastic)
 ![![Size](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FSize)](https://img.shields.io/bundlephobia/min/questal?style=plastic)
-![License](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FLicense%2Fgreen)  
+![![License](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FLicense%2Fgreen)](https://img.shields.io/npm/l/questal?style=plastic)  
 
 A lightweight javascript library for handling browser-based HTTP requests.
 
