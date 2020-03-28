@@ -10,9 +10,6 @@ convene.queue([ { lib: ['events', 'util', 'data', 'headers', 'response'], src: [
     .on('merged', convene.minify)
     .on('clear', () => {
         convene.requeue([ 
-            '@srcer/events/src/callback', 
-            '@srcer/events/src/event', 
-            '@srcer/events', 
             { lib: ['events', 'util', 'data', 'headers', 'response'], 
             src: ['request', 'get', 'post', 'delete', 'questal'] } 
         ], 'require')
