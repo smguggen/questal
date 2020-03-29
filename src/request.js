@@ -1,11 +1,11 @@
 const QuestalHeaders = require('../lib/headers');
 const QuestalResponse = require('../lib/response');
 const QuestalEvents = require('../lib/events');
-const QuestalData = require('../lib/data');
-
-class QuestalRequest {
+const { ProtoRequest } = require('@srcer/questal-proto')
+class QuestalRequest extends ProtoRequest {
     constructor(options, omitBody) {
-        this._init(options, omitBody);
+        let settings = new XMLHttpRequest();
+        super(settings, options, omitBody);
     }
 
     set success(fn) {
@@ -24,44 +24,10 @@ class QuestalRequest {
             return this.response.isSuccess();
         }
     }
-
-    set method(m) {
-        m = m || '';
-        this._method = m;
-    }
-    get method() {
-        return this._method || null;
-    }
-
-    set url(url) {
-        url =  url || '/';
-        let urls = url.split('?');
-        this._url = urls[0];
-        if (urls.length > 1) {
-            this.data.params = urls[1];
-        }
-    }
-
-    get url() {
-        return this._url || '/';
-    }
-
     get state() {
         let st = this.settings.readyState;
         let arr = ['unsent', 'ready', 'responseHeaders', 'loadStart', 'complete'];
         return arr[st];
-    }
-
-    set options(opt) {
-        opt = opt || {};
-        if (!this._options) {
-            this._options = {};
-        }
-        this._options = Object.assign({}, this._options, opt);
-    }
-
-    get options() {
-        return this._options || {};
     }
 
     get(key) {
@@ -96,17 +62,17 @@ class QuestalRequest {
     }
 
     on(event, callback) {
-        if (['progress', 'abort', 'error', 'timeout'].includes(event)) {
-            event = '_' + event;
+        if (this.events && typeof this.events.on === 'function') {
+            this.events.on(event, callback);
         }
-        this.events.on(event, callback);
+        return this;
     }
 
     off(event, callback) {
-        if (['progress', 'abort', 'error', 'timeout'].includes(event)) {
-            event = '_' + event;
+        if (this.events && typeof this.events.off === 'function') {
+            this.events.off(event, callback);
         }
-        this.events.off(event, callback);
+        return this;
     }
 
     abort() {
@@ -148,12 +114,10 @@ class QuestalRequest {
     _init(options, omitBody) {
         let $this = this;
         this.options = options || {};
-        this.settings = new XMLHttpRequest();
         this.headers = new QuestalHeaders(this.settings);
         this.response = new QuestalResponse(this.settings, omitBody);
         this.events = new QuestalEvents(this.settings, this);
         this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
-        this.data = new QuestalData();
         this.url = this.options.url;
         this.method = this.options.method || 'get';
         this.data.params = this.options.data || this.options.params;
@@ -175,38 +139,6 @@ class QuestalRequest {
 
         this.onReady();
         this.setOptions(this.options);
-    }
-
-    setOptions(options) {
-        options = options || {};
-        let keys = Object.keys(options);
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
-            let option = options[key];
-            if (this.eventNames.includes(key)) {
-                this.on(key, option);
-            } else {
-                this.set(key, option);
-            }
-        }
-    }
-    
-    
-    _presend(url, data) {
-        if (url) {
-            this.url = url;
-        }
-        if (data) {
-            this.data.params = data;
-        }
-        this.events.fire('init');
-        if (!this.method) {
-            throw new Error('Request method is empty');
-        } else if (!this.url) {
-            throw new Error('Request Url is invalid');
-        } else {
-            return true;
-        }
     }
 }
 

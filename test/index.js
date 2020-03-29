@@ -37,7 +37,7 @@ let get = q.get({url:'/data', success: function(data) { console.log(this, data.j
 get.on('success', (res) => {
     // Turn the results of the request into its own file using the put method
     console.log(res);
-    q.put('/data/data2.json', {file: res.text});
+    q.put('/data/data2.json', { file: JSON.stringify(res.json, null, '\t') });
 });
 
 get.send();
