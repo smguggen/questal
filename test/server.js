@@ -56,6 +56,8 @@ app.delete('/*', function(req, res) {
     }
 });
 
-app.use(server.static('./test'));
+app.use('/dist', server.static('./dist'));
+
+app.use(server.static('./test', { extensions: ['html'] }));
 
 app.listen(8080)

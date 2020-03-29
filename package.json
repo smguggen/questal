@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node ./test/server.js",
     "build": "node config/build.js",
-    "test-server": "rm -rf ./test/dist && cp -R ./dist ./test/dist && node ./test/server.js"
+    "test-server": "node config/build.js && node ./test/server.js"
   },
   "repository": {
     "type": "git",
