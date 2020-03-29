@@ -110,13 +110,16 @@ class QuestalRequest extends ProtoRequest {
             this.headers.init();
         });
     }
+    
+    setEvents() {
+        this.events = new QuestalEvents(this.settings, this);
+    }
 
-    _init(options, omitBody) {
+    init(options, omitBody) {
         let $this = this;
         this.options = options || {};
         this.headers = new QuestalHeaders(this.settings);
         this.response = new QuestalResponse(this.settings, omitBody);
-        this.events = new QuestalEvents(this.settings, this);
         this.eventNames = ['init', 'ready', 'responseHeaders', 'loadStart', 'change', 'complete', 'success', 'progress', 'abort', 'error', 'timeout'];
         this.url = this.options.url;
         this.method = this.options.method || 'get';

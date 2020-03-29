@@ -1,4 +1,3 @@
-//console.log(Questal);
 //static get request
 Questal.Get('/data', function(data, event) {console.log(data.json)});
 
