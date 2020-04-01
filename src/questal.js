@@ -66,7 +66,7 @@ class Questal {
     }
 
     static Request() {
-        return QuestalRequest();
+        return new QuestalRequest();
     }
 
     static Get(url, data, onSuccess, onError) {
