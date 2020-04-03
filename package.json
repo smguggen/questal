@@ -37,6 +37,6 @@
     "express": "^4.17.1"
   },
   "dependencies": {
-    "@srcer/questal-proto": "^1.2.0"
+    "@srcer/questal-proto": "^1.3.1"
   }
 }

@@ -87,6 +87,7 @@ class Questal {
         if (typeof data === 'function') {
             onSuccess = data;
             onError = onSuccess;
+            data = {};
         }
         let req = new QuestalPost({
             success:onSuccess,
