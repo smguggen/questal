@@ -19,13 +19,11 @@ app.post('/data', function(req, res) {
 });
 
 app.get('/data', function(req, res) {
-    fs.readFile(path.resolve(__dirname, './data/data.json'), 'utf-8', (err, data) => {
-        if (err) {
-            console.error(err);
-        } else {
-            res.json(data);
-        }
-    })
+    let data = require('./data/data.json');
+    if (req.query && Object.keys(req.query).length) {
+        data[0].params = req.query;
+    }    
+    res.json(data);
 });
 
 app.put('/*', function(req, res) {

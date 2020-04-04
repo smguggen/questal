@@ -1,5 +1,5 @@
 //static get request
-Questal.Get('/data', function(data, event) {console.log(data.json)});
+Questal.Get('/data?id=14', function(data, event) {console.log(data.json)});
 
 //static post request
 Questal.Post('/data', function(data, event) { console.log(data, event)});

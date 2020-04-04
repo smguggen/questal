@@ -45,6 +45,10 @@ class QuestalRequest extends ProtoRequest {
     }
 
     open(url, data) {
+        if (typeof url !== 'string' && !data) {
+            data = url;
+            url = null;
+        }
         this._presend(url, data);
         let sendMethod = this.method.toUpperCase();
         this.settings.open(sendMethod, this.url);
