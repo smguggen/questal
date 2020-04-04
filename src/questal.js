@@ -17,11 +17,13 @@ class Questal {
         }
     }
     
-    get(options) {
+    get(...options) {
+        options = this._parseOptions(...options);
         return new QuestalGet(options);
     }
 
-    post(options) {
+    post(...options) {
+        options = this._parseOptions(...options);
         return new QuestalPost(options);
     }
     
@@ -31,7 +33,7 @@ class Questal {
         if (delayRequest) {
             return req;
         }
-        return req.open(url, data).send(req.data.params);
+        return req.open(url).send(data);
     }
 
     patch(url, data, options, delayRequest) {
@@ -40,7 +42,7 @@ class Questal {
         if (delayRequest) {
             return req;
         }
-        return req.open(url, data).send(req.data.params);
+        return req.open(url).send(data);
     }
 
     head(url, options, delayRequest) {
@@ -58,11 +60,7 @@ class Questal {
         if (delayRequest) {
             return req;
         }
-        if (options.data) {
-            return req.send(url, data);
-        } else {
-            return req.send(url);
-        }
+        return req.open(url).send(data);
     }
 
     static Request() {
@@ -121,6 +119,22 @@ class Questal {
            error:onError
        });
     }
+    
+    _parseOptions(...options) {
+        let [option1, option2] = options;
+        let result = {};
+        if (option1 && typeof option1 == 'object') {
+            result = option1;
+        } else {
+            if (typeof option1 === 'string') {
+                result.url = option1;
+            } 
+            if (option2 && typeof option2 == 'object') {
+                result.data = option2;
+            }
+        }
+        return result;
+    }
 
     _processOptions(options, key) {
         key = key || 'success';
@@ -146,6 +160,8 @@ class Questal {
         }
         return null;
     }
+    
+    
 }
 
 module.exports = Questal;

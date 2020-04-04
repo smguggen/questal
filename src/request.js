@@ -1,7 +1,7 @@
 const QuestalHeaders = require('../lib/headers');
 const QuestalResponse = require('../lib/response');
 const QuestalEvents = require('../lib/events');
-const { ProtoRequest } = require('@srcer/questal-proto')
+const { ProtoRequest, ProtoData } = require('@srcer/questal-proto')
 class QuestalRequest extends ProtoRequest {
     constructor(options, omitBody) {
         let settings = new XMLHttpRequest();
@@ -44,21 +44,18 @@ class QuestalRequest extends ProtoRequest {
         return this;
     }
 
-    open(url, data) {
-        if (typeof url !== 'string' && !data) {
-            data = url;
-            url = null;
-        }
-        this._presend(url, data);
+    open(url) {
+        url = super.open(url);
         let sendMethod = this.method.toUpperCase();
-        this.settings.open(sendMethod, this.url);
+        this.settings.open(sendMethod, url);
         // ready event fires
         return this;
     }
 
-    send(body) {
+    send(data) {
+        data = super.send(data);
         if (this.state == 'ready') {
-            this.settings.send(body);
+            this.settings.send(ProtoData.stringify(data));
         } else {
             throw new Error(`Request can\t be sent with a ready state of \"${this.state}\".`);
         }

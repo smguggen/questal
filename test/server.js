@@ -15,7 +15,7 @@ app.post('/*', function(req, res, next) {
 });
 
 app.post('/data', function(req, res) {
-    req.use(res);
+    req.use(req, res);
 });
 
 app.get('/data', function(req, res) {

@@ -12,33 +12,17 @@ class QuestalDelete extends QuestalRequest {
 
     }
 
-    set url(url) {
-        url =  url || '/';
-        let urls = url.split('?');
-        this._url = urls[0];
-        if (urls.length > 1) {
-            this.data.params = urls[1];
-        }
-    }
-
-    get url() {
-        if (this.data.params) {
-            return this._url + '?' + this.data.params;
-        } else {
-            return this._url;
-        }
-    }
-
     open() {
         return null;
     }
 
-    send(url, data) {
-        super.open(url, data)
-        super.send();
+    send(uri, params) {
+        let { url, data } = this.presend(uri, params);
+        super.open(url)
+        super.send(data);
     }
 
-    _onReady(options) {
+    _onReady() {
         let $this = this;
         this.on('ready', () => {
             $this.headers.init();
