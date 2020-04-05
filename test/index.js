@@ -8,17 +8,19 @@ Questal.Post('/data', { id:15 }, function(data) {console.log('Static Post', data
 let q = new Questal();
 
 //post request using questal instance
-let post = q.post(
+let post = q.post('/data',
     {
-        url:'/data',
-        data: {id:16},
+        id:16
+    },
+    { 
         success: function(data) {
-             console.log('Post', data.json);
+            console.log('Post', data.json);
             let table = document.getElementById('table');
             let rows = data.json.join('');
             table.innerHTML = rows;
         }
-});
+    }
+);
 
 post.headers.accept = 'json'; //adds 'application/json' to acceptheaders to be set
 

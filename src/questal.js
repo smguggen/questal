@@ -54,7 +54,7 @@ class Questal {
         return req.open(url).send();
     }
 
-    delete(url, options, delayRequest) {
+    delete(url, data, options, delayRequest) {
         options = this._processOptions(options);
         let req = new QuestalDelete(options);
         if (delayRequest) {
@@ -112,16 +112,16 @@ class Questal {
        });
     }
     
-    static Delete(url, onSuccess, onError) {
+    static Delete(url, data, onSuccess, onError) {
         let q = new Questal();
-       return q.delete(url, { 
+       return q.delete(url, data, { 
            success: onSuccess, 
            error:onError
        });
     }
     
     _parseOptions(...options) {
-        let [option1, option2] = options;
+        let [option1, option2, option3] = options;
         let result = {};
         if (option1 && typeof option1 == 'object') {
             result = option1;
@@ -131,6 +131,9 @@ class Questal {
             } 
             if (option2 && typeof option2 == 'object') {
                 result.data = option2;
+            }
+            if (option3 && typeof option3 == 'object') {
+                result = Object.assign({}, option3, result);
             }
         }
         return result;

@@ -31,13 +31,44 @@ import Questal from '.node_modules/dist/questal.es.js';
 ```
 Basic Usage:
 -------------
-You can make get and post requests with standard config by calling questal's static methods.
-```javascript
-//static get request
-Questal.Get('/path/to/dest', function(data, event) {console.log(data)});
 
+You can make get, post, put, patch, and delete requests with `Questal`, to make a quick one off request you can capitalize the first letter and call the static version of the method, or you can set more customized options by instantiating a new `Questal` instance:
+:
+```javascript
+//static request
+Questal.Get('/path/to/dest', data => {console.log(data)});
+
+//using full Get method instance
+const q = new Questal();  
+let getInstance = q.get(options);
+// do stuff
+getInstance.send(url, data);
+```
+Pass parameters into the Questal constructor to have them persist through every call made by that instance, then optionally override a parameter on any individual call:
+```javascript
+let post = q.post(
+    {
+        url:'/data',
+        data: {
+            id:16,
+            first: 'Bill',
+            last: 'Jones',
+        }
+    }
+);
+
+//Parameters sent: { url:'/data', data: { id:16, first:'Bill', last: 'Jones' } }
+post.send();  
+
+//Parameters sent: { url:'/params', data: { id:17, first:'Bill', last: 'Nelson' } }
+post.send('/params', { id:17, last:'Nelson' });  
+```
+
+Callbacks
+---------
+```javascript
 //static post request
-Questal.Post('/path/to/dest', function(data, event) { console.log(data.json)});
+Questal.Post('/path/to/dest', function(data) { console.log(data, data.json)});
 ```
 The data parameter passed to the 'on success' callback is a Questal Response object containing the results of the request.
 
@@ -80,22 +111,13 @@ QuestalResponse {
 ]
 ```
 
-To set more customized options grab a new instance of the object
+Headers
+-------
+Set or append header properties and they'll automatically be sent after open, for other tasks intended to run on `readyState == 1`, use `questal.on('ready', callback)`
+
 ```javascript
-const q = new Questal();
+let post = q.post('/data')
 
-//post request using questal instance
-let post = q.post(
-    {
-        url:'/data',
-        success: function(data) {
-            let table = document.getElementById('table');
-            let rows = data.json.join('');
-            table.innerHTML = rows;
-        }
-});
-
-//set or append header properties and they'll automatically be sent after open, for other tasks intended to run on readyState == 1, use questal.on('ready', callback)
 post.headers.accept = 'json'; //adds 'application/json' to acceptheaders to be set
 post.headers.encoding = 'multipart'; // sets Content-Type to 'multipart/form-data'
 post.response.type = 'json'; //sets response type to application/json
@@ -109,22 +131,25 @@ post.on('responseHeaders', () => { // when readystate == 2
 });
 
 //after setup, send request
-post.send();
+post.send({ mykey: myValue });
 ```
 
+Put and Delete
+--------------
+Turn the results of a request into its own file using the `put` method
 ```javascript
-//get request using Questal instance
-let get = q.get({url:'/path/to/dest', success: (data, event) => console.log(data) });
-
-// Turn the results of the request into its own file using Questal.prototype.put
+let get = q.get('/path/to/dest');
 get.on('success', (res) => {
-    q.put('/data/data2.json', {file: res.text});
+    q.put('/data/data2.json', { file: res.text });
 });
 
 get.send();
-
-//add an event handler to delete the new file
+```
+Then add an event handler to delete the new file
+```javascript
 document.getElementById('btn').addEventListener('click', function() {
     q.delete('/data/data2.json', res => (alert(res.text)));
 });
 ```
+
+Running `npm run test-server` will let you see some of these examples in action locally on `localhost:8080` or `127.0.0.1:8080` in your browser.
