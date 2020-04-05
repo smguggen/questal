@@ -32,7 +32,7 @@ import Questal from '.node_modules/dist/questal.es.js';
 Basic Usage:
 -------------
 
-You can make get, post, put, patch, and delete requests with `Questal`, to make a quick one off request you can capitalize the first letter and call the static version of the method, or you can set more customized options by instantiating a new `Questal` instance:
+You can make `get`, `post`, `put`, `patch`, and `delete` requests with `Questal`, to make a quick one off request you can capitalize the first letter and call the static version of the method, or you can set more customized options by instantiating a new `Questal` instance:
 :
 ```javascript
 //static request
