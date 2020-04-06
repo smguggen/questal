@@ -5,7 +5,7 @@
 ![![Size](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FSize%2Finformational)](https://img.shields.io/bundlephobia/min/questal?style=plastic)
 ![![License](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FLicense%2Fgreen)](https://img.shields.io/npm/l/questal?style=plastic)  
 
-A lightweight javascript library for handling browser-based HTTP requests.
+A lightweight javascript library for handling browser-based HTTP requests. For exclusively server-side requests, see [Requestal](https://www.npmjs.com/package/requestal)
 
 Install
 -------
