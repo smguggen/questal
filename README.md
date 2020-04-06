@@ -5,7 +5,7 @@
 ![![Size](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FSize%2Finformational)](https://img.shields.io/bundlephobia/min/questal?style=plastic)
 ![![License](https://img.shields.io/endpoint?url=https%3A%2F%2Fsrcer.com%2Fshields%2FQuestal%2FLicense%2Fgreen)](https://img.shields.io/npm/l/questal?style=plastic)  
 
-A lightweight javascript library for handling browser-based HTTP requests. For exclusively server-side requests, see [Requestal](https://www.npmjs.com/package/requestal)
+A Javascript library for making HTTP requests from window or module using the same basic syntax. `Questal` will dynamically detect the environment so you can seamlessly make any request using the same commands.
 
 Install
 -------
@@ -15,6 +15,11 @@ npm install questal
 
 Include
 -------
+```javascript
+const Questal = require('questal');
+```
+In HTML
+-------
 ```html
 <!-- The old-fashioned way -->
 <script type="text/javascript" src="/node_modules/dist/questal.min.js"></script>
@@ -23,12 +28,9 @@ Include
 <script type="module" src="/node_modules/dist/questal.es.js"></script>
 ```
 ```javascript
-// Using Webpack/Babel loader or similar
-import Questal from 'questal'
-
-// straight into your javascript file
 import Questal from '.node_modules/dist/questal.es.js';
 ```
+
 Basic Usage:
 -------------
 
@@ -72,25 +74,7 @@ Callbacks
 //static post request
 Questal.Post('/path/to/dest', function(data) { console.log(data, data.json)});
 ```
-The data parameter passed to the 'on success' callback is a Questal Response object containing the results of the request.
-
-#### data:
-```javascript
-QuestalResponse {
-    defaultType: "text",
-    settings: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 60000, withCredentials: false, upload: XMLHttpRequestUpload, …},
-    types: (5) ["arraybuffer", "blob", "document", "text", "json"],
-    code: {…},
-    data: {…},
-    html: "…",
-    json: {…},
-    result: {…},
-    status: "…",
-    type: "…",
-    url: "…",
-    xml: "…",
-}
-```
+The data parameter passed to the 'on success' callback is a Questal Response object containing the results of the request, including some handy methods for accessing the data.
 
 #### data.json:
 ```json
@@ -147,11 +131,25 @@ get.on('success', (res) => {
 
 get.send();
 ```
-Then add an event handler to delete the new file
+Then later delete that file using the delete method
 ```javascript
-document.getElementById('btn').addEventListener('click', function() {
-    q.delete('/data/data2.json', res => (alert(res.text)));
-});
+ q.delete('/data/data2.json', res => (alert(res.text)));
 ```
 
 Running `npm run test-server` will let you see some of these examples in action locally on `localhost:8080` or `127.0.0.1:8080` in your browser.
+
+# Changelog
+
+Version 4
+---------
+Starting with Version 4 Questal supports server-side node requests as well as the browser-based requests it's always had. The syntax is all the same so you probably won't notice a difference, but if you only want to include what you're going to use and have no need for both subpackages, we've still got you covered.  
+
+The built files in the `/dist` directory are intended for browser-based requests only and do not include any of the server-side request files. Importing or using a script tag directly from the `/dist` directory will get you the browser-only version.
+
+However if you're using a service like `Babel` to `import Questal from 'questal'` pre-build, that version defaults to the full module containing all subpackages. So in case you know that you just need to make browser-based requests or that you just need to make server-side requests and have no need for both packages, the module exposes both packages individually using the static `QuestalAjax` and `QuestalNode` properties.
+
+```javascript
+const { QuestalAjax } = require('questal') //Uses only the browser-based version
+
+const { QuestalNode } = require('questal') //Uses only the Node-based version
+```

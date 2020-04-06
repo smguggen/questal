@@ -11,11 +11,11 @@ if (typeof exports === 'object' && typeof module !== 'undefined') {
 
 module.exports = class extends Request {
     
-    static get Ajax() {
+    static get QuestalAjax() {
         return Questal;
     }
     
-    static get Node() {
+    static get QuestalNode() {
         return Requestal;
     }
 }
