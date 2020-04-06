@@ -9,8 +9,13 @@ if (typeof exports === 'object' && typeof module !== 'undefined') {
     throw new Error('Questal is not supported in this environment');
 }
 
-exports.client = Questal;
-exports.server = Requestal;
-module.exports = require('./src/questal');
-
-
+module.exports = class extends Request {
+    
+    static get Client() {
+        return Questal;
+    }
+    
+    static get Server() {
+        return Requestal;
+    }
+}
