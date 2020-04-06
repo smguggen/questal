@@ -1,6 +1,6 @@
 {
   "name": "questal",
-  "version": "3.0.3",
+  "version": "4.0.0",
   "description": "A Javascript library for making HTTP requests from window or module using the same basic syntax",
   "main": "./index.js",
   "exports": {
