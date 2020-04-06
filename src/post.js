@@ -14,13 +14,13 @@ class QuestalPost extends QuestalRequest {
     }
 
     open() {
-        return null;
+        return this;
     }
 
     send(uri, params) {
         let { url, data } = this.presend(uri, params);
         super.open(url);
-        super.send(data);
+        return super.send(data);
     }
 
     onReady(options) {

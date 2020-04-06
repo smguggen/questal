@@ -14,14 +14,14 @@ class QuestalGet extends QuestalRequest {
     }
 
     open() {
-        return null;
+        return this;
     }
 
     send(uri, params) {
         let { url, data } = this.presend(uri, params);
         url = this.setQueryString(url, data);
         super.open(url)
-        super.send();
+        return super.send();
     }
 
     _onReady(options) {

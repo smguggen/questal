@@ -4,7 +4,8 @@ const QuestalPost = require('./post');
 const QuestalDelete = require('./delete');
 class Questal {
 
-    request(method, options) {
+    request(method, ...options) {
+        options = this._parseOptions(...options);
         method = method ? method.toLowerCase() : null
         if (method == 'get') {
             return this.get(options);
@@ -54,13 +55,17 @@ class Questal {
         return req.open(url).send();
     }
 
-    delete(url, data, options, delayRequest) {
+    delete(url, options, delayRequest) {
         options = this._processOptions(options);
         let req = new QuestalDelete(options);
         if (delayRequest) {
             return req;
         }
-        return req.open(url).send(data);
+        if (options.data) {
+            return req.send(url, options.data);
+        } else {
+            return req.send(url);
+        }
     }
 
     static Request() {
@@ -96,25 +101,30 @@ class Questal {
     
     static Put(url, data, onSuccess, onError) {
         let q = new Questal();
-       return q._staticTemplate('put', url, data, onSuccess, onError)
+        return q._staticTemplate('put', url, data, onSuccess, onError)
     }
     
     static Patch(url, data, onSuccess, onError) {
         let q = new Questal();
-       return q._staticTemplate('patch', url, data, onSuccess, onError)
+        return q._staticTemplate('patch', url, data, onSuccess, onError)
     }
     
     static Head(url, onSuccess, onError) {
         let q = new Questal();
-       return q.head(url, { 
+        return q.head(url, { 
            success: onSuccess, 
            error:onError
        });
     }
     
     static Delete(url, data, onSuccess, onError) {
+        if (typeof data === 'function') {
+            onSuccess = data;
+            onError = onSuccess;
+            data = {};
+        }
         let q = new Questal();
-       return q.delete(url, data, { 
+        return q.delete(url, data, { 
            success: onSuccess, 
            error:onError
        });
@@ -148,7 +158,7 @@ class Questal {
         return options;
     }
     
-    _staticTemplate(type, url, data, success, error) {
+    _staticTemplate(type, url, data, onSuccess, onError) {
         if (typeof data === 'function') {
             onSuccess = data;
             onError = onSuccess;
@@ -157,14 +167,12 @@ class Questal {
         let req = this[type];
         if (typeof req === 'function') {
             return req(url, data, {
-                success:success,
-                error:error
+                success:onSuccess,
+                error:onError
             });
         }
         return null;
     }
-    
-    
 }
 
 module.exports = Questal;
