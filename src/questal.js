@@ -117,14 +117,9 @@ class Questal {
        });
     }
     
-    static Delete(url, data, onSuccess, onError) {
-        if (typeof data === 'function') {
-            onSuccess = data;
-            onError = onSuccess;
-            data = {};
-        }
+    static Delete(url, onSuccess, onError) {
         let q = new Questal();
-        return q.delete(url, data, { 
+        return q.delete(url, { 
            success: onSuccess, 
            error:onError
        });
