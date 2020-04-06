@@ -147,10 +147,13 @@ class Questal {
     _processOptions(options, key) {
         key = key || 'success';
         options = options || {};
+        let result = {};
         if (typeof options === 'function') {
-           options[key] = options;
+           result[key] = options;
+        } else {
+            result = options;
         }
-        return options;
+        return result;
     }
     
     _staticTemplate(type, url, data, onSuccess, onError) {
