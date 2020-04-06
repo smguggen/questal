@@ -9,7 +9,7 @@ A lightweight javascript library for handling browser-based HTTP requests.
 
 Install
 -------
-```javascript
+```console
 npm install questal
 ```
 
@@ -36,7 +36,9 @@ You can make `get`, `post`, `put`, `patch`, and `delete` requests with `Questal`
 :
 ```javascript
 //static request
-Questal.Get('/path/to/dest', data => {console.log(data)});
+Questal.Get('/path/to/dest', data => {
+    console.log(data)
+});
 
 //using full Get method instance
 const q = new Questal();  
