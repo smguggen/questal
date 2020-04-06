@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node ./test/server.js",
     "build": "node config/build.js",
-    "test-server": "node config/build.js && node ./test/server.js"
+    "test-server": "node config/build.js && node ./test/server.js",
+    "test": "requestal test"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,6 @@
   },
   "dependencies": {
     "@srcer/questal-proto": "3.3.3",
-    "requestal": "^1.0.1"
+    "requestal": "^1.1.2"
   }
 }
