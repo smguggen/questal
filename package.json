@@ -1,6 +1,6 @@
 {
   "name": "questal",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "A lightweight javascript library for handling browser-based HTTP requests.",
   "main": "./index.js",
   "exports": {
