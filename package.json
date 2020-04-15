@@ -39,6 +39,6 @@
   },
   "dependencies": {
     "@srcer/questal-proto": "3.3.3",
-    "requestal": "^1.1.2"
+    "requestal": "^1.1.5"
   }
 }
